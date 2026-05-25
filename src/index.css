@@ -28,9 +28,15 @@
 
   body {
     margin: 0;
-    background-color: #000000; /* Apple Pure Black */
-    color: #F5F5F7; /* Apple Primary White */
+    background-color: #ffffff;
+    color: #1d1d1f;
+    transition: background-color 200ms ease, color 200ms ease;
     font-family: "Pretendard", "SF Pro Text", "system-ui", "-apple-system", "BlinkMacSystemFont", sans-serif;
+  }
+
+  body.dark, .dark body {
+    background-color: #000000;
+    color: #ffffff;
   }
 
   /* Apple Tight Display Headline Tracking */

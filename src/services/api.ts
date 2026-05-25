@@ -20,11 +20,13 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     }
 
     if (!res.ok) {
-      throw new Error(data.error || `네트워크 오류가 발생했습니다. (HTTP ${res.status})`);
+      const errMsg = data?.error?.message || `네트워크 오류가 발생했습니다. (HTTP ${res.status})`;
+      throw new Error(errMsg);
     }
 
     if (!data.success) {
-      throw new Error(data.error || "요청 처리에 실패했습니다.");
+      const errMsg = data?.error?.message || "요청 처리에 실패했습니다.";
+      throw new Error(errMsg);
     }
 
     return data.data;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Search, UserCheck } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Search, UserCheck, Sun, Moon } from "lucide-react";
 import { QuestionList } from "./QuestionList";
 import { QuestionDetail } from "./QuestionDetail";
 import { NewsletterSubscription } from "./NewsletterSubscription";
@@ -9,6 +10,8 @@ import { Button } from "../../../components/ui/Button";
 
 interface HandbookDashboardProps {
   onSwitchMode: () => void;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
 }
 
 interface SubjectMap {
@@ -122,15 +125,12 @@ const getSyntheticOverview = (subjectKey: string): Question => {
   };
 };
 
-export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode }) => {
+export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode, theme, onToggleTheme }) => {
   const [selectedSubjectKey, setSelectedSubjectKey] = useState<string>("JAVASCRIPT");
-  const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
-  const [loadingQuestions, setLoadingQuestions] = useState<boolean>(false);
   const initialQuestionRef = useRef<Question | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  
-
+  const [mobileView, setMobileView] = useState<"list" | "detail">("list");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -182,95 +182,91 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
     }
   }, []);
 
-  // Load questions based on selected subject key
-  useEffect(() => {
-    let active = true;
+  // TanStack Query to load and cache questions based on subject key
+  const { data: questionsData = [], isLoading: loadingQuestions } = useQuery<Question[]>({
+    queryKey: ["questions", selectedSubjectKey],
+    queryFn: async () => {
+      if (selectedSubjectKey === "HOME") {
+        return [getSyntheticOverview("HOME")];
+      }
 
-    if (selectedSubjectKey === "HOME") {
-      setQuestions([]);
-      setSelectedQuestion(getSyntheticOverview("HOME"));
-      return;
-    }
-
-    Promise.resolve().then(() => {
-      if (active) setLoadingQuestions(true);
-    });
-
-    const mapping = SUBJECT_MAPS[selectedSubjectKey];
-    
-    // Determine queries to make
-    const fetchPromises: Promise<Question[]>[] = [];
-    
-    if (mapping.category && !mapping.subjects) {
-      // Query by category (e.g. CS)
-      fetchPromises.push(apiService.getQuestions(mapping.category, undefined));
-    } else if (mapping.subjects) {
-      // Query by multiple subjects in parallel
-      mapping.subjects.forEach(sub => {
-        fetchPromises.push(apiService.getQuestions(undefined, sub));
-      });
-    } else {
-      // ALL category: fetch a mix of all questions
-      fetchPromises.push(apiService.getQuestions(undefined, undefined));
-    }
-
-    Promise.all(fetchPromises)
-      .then((results) => {
-        if (!active) return;
-        
-        // Merge results and remove duplicates by ID
-        const merged: Question[] = [];
-        const seenIds = new Set<number>();
-        
-        results.forEach(list => {
-          list.forEach(q => {
-            if (!seenIds.has(q.id)) {
-              seenIds.add(q.id);
-              merged.push(q);
-            }
-          });
+      const mapping = SUBJECT_MAPS[selectedSubjectKey];
+      const fetchPromises: Promise<Question[]>[] = [];
+      
+      if (mapping.category && !mapping.subjects) {
+        fetchPromises.push(apiService.getQuestions(mapping.category, undefined));
+      } else if (mapping.subjects) {
+        mapping.subjects.forEach(sub => {
+          fetchPromises.push(apiService.getQuestions(undefined, sub));
         });
+      } else {
+        fetchPromises.push(apiService.getQuestions(undefined, undefined));
+      }
 
-        // Prepend synthetic overview question for the active category
-        const overviewQ = getSyntheticOverview(selectedSubjectKey);
-        const finalQuestions = [overviewQ, ...merged];
-        
-        setQuestions(finalQuestions);
-        
-        if (initialQuestionRef.current) {
-          const targetSub = initialQuestionRef.current.subject.toLowerCase();
-          const activeMap = SUBJECT_MAPS[selectedSubjectKey];
-          const isMatchedCategory = activeMap.subjects && activeMap.subjects.includes(targetSub);
-          const isAllCategory = selectedSubjectKey === "ALL";
-          
-          if (isMatchedCategory || isAllCategory) {
-            const exists = merged.some(q => q.id === initialQuestionRef.current?.id);
-            if (!exists && initialQuestionRef.current) {
-              setQuestions([overviewQ, initialQuestionRef.current, ...merged]);
-            }
-            setSelectedQuestion(initialQuestionRef.current);
-          } else {
-            setSelectedQuestion(overviewQ);
+      const results = await Promise.all(fetchPromises);
+      
+      const merged: Question[] = [];
+      const seenIds = new Set<number>();
+      
+      results.forEach(list => {
+        list.forEach(q => {
+          if (!seenIds.has(q.id)) {
+            seenIds.add(q.id);
+            merged.push(q);
           }
-          initialQuestionRef.current = null; // Consume ref
-        } else {
-          setSelectedQuestion(overviewQ);
-        }
-      })
-      .catch((err) => {
-        console.error("Error loading handbook questions:", err);
-      })
-      .finally(() => {
-        if (active) setLoadingQuestions(false);
+        });
       });
 
-    return () => {
-      active = false;
-    };
-  }, [selectedSubjectKey]);
+      const overviewQ = getSyntheticOverview(selectedSubjectKey);
+      
+      // Inject initialQuestion if it belongs to this category to prevent blank selections
+      if (initialQuestionRef.current) {
+        const targetSub = initialQuestionRef.current.subject.toLowerCase();
+        const isMatchedCategory = mapping.subjects && mapping.subjects.includes(targetSub);
+        const isAllCategory = selectedSubjectKey === "ALL";
+        
+        if (isMatchedCategory || isAllCategory) {
+          const exists = merged.some(q => q.id === initialQuestionRef.current?.id);
+          if (!exists) {
+            return [overviewQ, initialQuestionRef.current, ...merged];
+          }
+        }
+      }
+
+      return [overviewQ, ...merged];
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
+  // Keep selectedQuestion in sync with category switch or custom query param load
+  useEffect(() => {
+    if (loadingQuestions || questionsData.length === 0) return;
+
+    const overviewQ = questionsData[0]; // Overview is always index 0
+    
+    if (initialQuestionRef.current) {
+      const targetSub = initialQuestionRef.current.subject.toLowerCase();
+      const activeMap = SUBJECT_MAPS[selectedSubjectKey];
+      const isMatchedCategory = activeMap.subjects && activeMap.subjects.includes(targetSub);
+      const isAllCategory = selectedSubjectKey === "ALL";
+      
+      if (isMatchedCategory || isAllCategory) {
+        setSelectedQuestion(initialQuestionRef.current);
+      } else {
+        setSelectedQuestion(overviewQ);
+      }
+      initialQuestionRef.current = null; // Consume ref
+    } else {
+      const isStillAvailable = questionsData.some(q => q.id === selectedQuestion?.id && q.id !== -1);
+      if (!isStillAvailable) {
+        setSelectedQuestion(overviewQ);
+      }
+    }
+  }, [selectedSubjectKey, questionsData, loadingQuestions]);
 
   // Client-side filtering logic
-  const filteredQuestions = questions.filter(q => {
+  const filteredQuestions = questionsData.filter(q => {
     if (q.id === -1) return true; // Keep synthetic overview always
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
@@ -304,12 +300,12 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-apple-surface-black">
+    <div className="flex-1 flex flex-col min-h-screen bg-white dark:bg-black transition-colors duration-200">
       {/* 1. Docusaurus style dynamic top-nav */}
-      <header className="bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-body-on-dark h-[52px] px-lg flex items-center justify-between sticky top-0 z-50 border-b border-white/5 select-none">
+      <header className="bg-white/80 dark:bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-ink dark:text-apple-body-on-dark h-[52px] px-lg flex items-center justify-between sticky top-0 z-50 border-b border-black/5 dark:border-white/5 select-none transition-colors duration-200">
         <div className="flex items-center gap-md">
-          <span className="font-sans font-bold text-sm tracking-tight text-white select-none whitespace-nowrap">
-            풀스택 면접 준비
+          <span className="font-sans font-bold text-sm tracking-tight text-apple-ink dark:text-white select-none whitespace-nowrap">
+            Interview Handbook
           </span>
         </div>
 
@@ -321,11 +317,12 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
               onClick={() => {
                 setSelectedSubjectKey(key);
                 setSearchQuery(""); // Clear search on category switch
+                setMobileView("list"); // Return to list view on category change
               }}
               className={`px-sm py-xs text-[12px] font-medium transition-colors whitespace-nowrap ${
                 selectedSubjectKey === key
-                  ? "text-apple-primary-on-dark font-semibold border-b-2 border-apple-primary"
-                  : "text-apple-body-muted hover:text-white"
+                  ? "text-apple-primary dark:text-apple-primary-on-dark font-semibold border-b-2 border-apple-primary"
+                  : "text-gray-500 dark:text-apple-body-muted hover:text-apple-ink dark:hover:text-white"
               }`}
             >
               {map.label}
@@ -337,18 +334,39 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
         <div className="flex items-center gap-sm">
           {/* Header search bar */}
           <div className="relative hidden sm:block">
-            <Search className="absolute left-xs top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-apple-body-muted/60" />
+            <Search className="absolute left-xs top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-apple-body-muted/60" />
             <input
               ref={searchInputRef}
               type="text"
               placeholder="검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-apple-surface-black border border-white/10 rounded-md py-[4px] pl-[26px] pr-[38px] text-[12px] text-white placeholder-apple-body-muted/50 focus:outline-none focus:border-apple-primary w-[140px] md:w-[180px] transition-all"
+              className="bg-apple-canvas-parchment dark:bg-apple-surface-black border border-black/10 dark:border-white/10 rounded-md py-[4px] pl-[26px] pr-[38px] text-[12px] text-apple-ink dark:text-white placeholder-gray-400 dark:placeholder-apple-body-muted/50 focus:outline-none focus:border-apple-primary w-[140px] md:w-[180px] transition-all"
             />
-            <span className="absolute right-xs top-1/2 -translate-y-1/2 text-[9px] font-mono text-apple-body-muted/60 bg-white/5 border border-white/10 px-xs py-[1px] rounded pointer-events-none select-none">
+            <span className="absolute right-xs top-1/2 -translate-y-1/2 text-[9px] font-mono text-gray-400 dark:text-apple-body-muted/60 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 px-xs py-[1px] rounded pointer-events-none select-none">
               ⌘K
             </span>
+          </div>
+
+          {/* iOS style Toggle Switch */}
+          <div className="flex items-center gap-xs select-none mr-xxs">
+            <Sun className="w-3.5 h-3.5 text-amber-500 dark:text-gray-600" />
+            <button
+              onClick={onToggleTheme}
+              className={`w-9 h-5 rounded-full p-[2px] transition-colors duration-200 focus:outline-none flex items-center ${
+                theme === "dark" ? "bg-apple-primary" : "bg-black/10"
+              }`}
+              role="switch"
+              aria-checked={theme === "dark"}
+              title={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+            >
+              <div
+                className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out-expo ${
+                  theme === "dark" ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+            <Moon className="w-3.5 h-3.5 text-gray-400 dark:text-amber-300 fill-transparent dark:fill-amber-300/20" />
           </div>
 
           <Button
@@ -356,9 +374,9 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
             onClick={onSwitchMode}
             variant="secondary"
             size="sm"
-            className="rounded-pill border border-white/10 text-[11px] font-semibold flex items-center gap-xxs px-sm py-[4px]"
+            className="rounded-pill border border-black/10 dark:border-white/10 text-[11px] font-semibold flex items-center gap-xxs px-sm py-[4px] bg-white dark:bg-apple-surface-tile-2 hover:bg-gray-100 dark:hover:bg-white/10 text-apple-ink dark:text-apple-body-on-dark transition-colors duration-200"
           >
-            <UserCheck className="w-3 h-3 text-apple-primary-on-dark" />
+            <UserCheck className="w-3 h-3 text-apple-primary dark:text-apple-primary-on-dark" />
             <span>모의 면접 시작</span>
           </Button>
         </div>
@@ -367,31 +385,49 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
       {/* 2. Three-column layout */}
       <div className="flex-1 flex w-full max-w-[1440px] mx-auto min-h-[calc(100vh-96px)]">
         {/* Mobile search bar */}
-        <div className="p-md sm:hidden border-b border-white/5 bg-apple-surface-black/30">
+        <div className={`p-md sm:hidden border-b border-black/5 dark:border-white/5 bg-apple-canvas-parchment dark:bg-apple-surface-black/30 w-full ${mobileView === "detail" ? "hidden" : "block"}`}>
           <div className="relative">
-            <Search className="absolute left-xs top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-apple-body-muted/60" />
+            <Search className="absolute left-xs top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-apple-body-muted/60" />
             <input
               type="text"
               placeholder="핸드북 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-apple-surface-black border border-white/10 rounded-md py-[6px] pl-[28px] pr-md text-[13px] text-white placeholder-apple-body-muted/50 focus:outline-none focus:border-apple-primary"
+              className="w-full bg-apple-canvas-parchment dark:bg-apple-surface-black border border-black/10 dark:border-white/10 rounded-md py-[6px] pl-[28px] pr-md text-[13px] text-apple-ink dark:text-white placeholder-gray-400 dark:placeholder-apple-body-muted/50 focus:outline-none focus:border-apple-primary"
             />
           </div>
         </div>
 
         {/* Column A: Left Sidebar (Question List) */}
-        <QuestionList
-          selectedCategory={selectedSubjectKey}
-          onChangeCategory={setSelectedSubjectKey}
-          questions={filteredQuestions}
-          selectedQuestionId={selectedQuestion?.id}
-          onSelectQuestion={setSelectedQuestion}
-          loading={loadingQuestions}
-        />
+        <div className={`w-full md:w-auto ${mobileView === "detail" ? "hidden md:block" : "block"}`}>
+          <QuestionList
+            selectedCategory={selectedSubjectKey}
+            onChangeCategory={setSelectedSubjectKey}
+            questions={filteredQuestions}
+            selectedQuestionId={selectedQuestion?.id}
+            onSelectQuestion={(q) => {
+              setSelectedQuestion(q);
+              if (q && q.id !== -1) {
+                setMobileView("detail");
+              }
+            }}
+            loading={loadingQuestions}
+          />
+        </div>
 
         {/* Column B: Center content (Detail Panel) */}
-        <main className="flex-1 px-lg py-xl border-r border-white/5 overflow-y-auto max-h-[85vh]">
+        <main className={`flex-1 px-lg py-xl border-r border-black/5 dark:border-white/5 overflow-y-auto max-h-[85vh] transition-colors duration-200 ${mobileView === "list" ? "hidden md:block" : "block"}`}>
+          {/* Mobile Back to List Button */}
+          {mobileView === "detail" && (
+            <div className="md:hidden mb-md flex items-center">
+              <button
+                onClick={() => setMobileView("list")}
+                className="text-[13px] font-semibold text-apple-primary dark:text-apple-primary-on-dark flex items-center gap-xxs active:scale-95 transition-transform"
+              >
+                <span>← 질문 목록으로</span>
+              </button>
+            </div>
+          )}
           <QuestionDetail question={selectedQuestion} />
         </main>
 
@@ -400,15 +436,15 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
           <div className="sticky top-[72px] flex flex-col gap-lg">
             {tocItems.length > 0 && (
               <nav className="flex flex-col gap-sm" aria-label="Table of contents">
-                <span className="font-display font-semibold text-[11px] tracking-wider uppercase text-apple-body-muted">
+                <span className="font-display font-semibold text-[11px] tracking-wider uppercase text-gray-400 dark:text-apple-body-muted">
                   목차 (On this page)
                 </span>
-                <ul className="flex flex-col gap-xs border-l border-white/5 pl-xxs">
+                <ul className="flex flex-col gap-xs border-l border-black/5 dark:border-white/5 pl-xxs">
                   {tocItems.map(item => (
                     <li key={item.id}>
                       <button
                         onClick={() => handleScrollToSection(item.id)}
-                        className="text-left w-full text-[12px] text-apple-body-muted hover:text-white hover:border-l hover:border-white/20 pl-sm py-[2px] transition-all truncate"
+                        className="text-left w-full text-[12px] text-gray-500 dark:text-apple-body-muted hover:text-apple-ink dark:hover:text-white hover:border-l hover:border-black/20 dark:hover:border-white/20 pl-sm py-[2px] transition-all truncate"
                       >
                         {item.label}
                       </button>

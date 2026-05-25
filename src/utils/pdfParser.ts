@@ -1,7 +1,6 @@
 import * as pdfjs from "pdfjs-dist";
 
-// Set PDF.js worker path to CDN corresponding to installed package version
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 /**
  * Parses a local PDF file object and extracts all text content page by page.

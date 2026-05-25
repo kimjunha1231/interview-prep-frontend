@@ -22,6 +22,7 @@ const SUBJECT_DB_MAPS: Record<string, string[]> = {
 
 export const InterviewDashboard: React.FC = () => {
   const [interviewStep, setInterviewStep] = useState<"setup" | "ongoing" | "feedback" | "report">("setup");
+  const [isStarting, setIsStarting] = useState<boolean>(false);
   const [interviewCategory, setInterviewCategory] = useState<string>("CS");
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([
     "NETWORK", "OS", "DATABASE", "ARCHITECTURE", "ALGORITHM"
@@ -34,6 +35,13 @@ export const InterviewDashboard: React.FC = () => {
   const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
   const [portfolioText, setPortfolioText] = useState<string>("");
 
+  // STT / State
+  const [userAnswerText, setUserAnswerText] = useState<string>("");
+  const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
+  const [transcribeError, setTranscribeError] = useState<string | null>(null);
+  const [isGrading, setIsGrading] = useState<boolean>(false);
+  const [gradingResult, setGradingResult] = useState<InterviewHistoryResponse | null>(null);
+
   // Audio Hook
   const { 
     isRecording, 
@@ -42,13 +50,9 @@ export const InterviewDashboard: React.FC = () => {
     startRecording, 
     stopRecording, 
     clearAudio 
-  } = useAudioRecorder();
-
-  // STT / State
-  const [userAnswerText, setUserAnswerText] = useState<string>("");
-  const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
-  const [isGrading, setIsGrading] = useState<boolean>(false);
-  const [gradingResult, setGradingResult] = useState<InterviewHistoryResponse | null>(null);
+  } = useAudioRecorder({
+    onTranscriptUpdate: setUserAnswerText
+  });
   
   // Tail Question
   const [isHandlingTailQuestion, setIsHandlingTailQuestion] = useState<boolean>(false);
@@ -60,6 +64,7 @@ export const InterviewDashboard: React.FC = () => {
   // --- Handlers ---
   const handleStartInterview = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsStarting(true);
     try {
       let dbSubjects: string[] = [];
       if (interviewCategory !== "PORTFOLIO") {
@@ -88,6 +93,9 @@ export const InterviewDashboard: React.FC = () => {
       setInterviewStep("ongoing");
     } catch (err) {
       console.error("Failed to start session:", err);
+      alert("면접 세션을 생성하는 데 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsStarting(false);
     }
   };
 
@@ -110,15 +118,23 @@ export const InterviewDashboard: React.FC = () => {
 
     if (audioBlob) {
       Promise.resolve().then(() => {
-        if (active) setIsTranscribing(true);
+        if (active) {
+          setIsTranscribing(true);
+          setTranscribeError(null);
+        }
       });
 
       apiService.transcribeAudio(audioBlob)
         .then((text) => {
           if (!active) return;
-          setUserAnswerText((prev) => (prev ? `${prev} ${text}` : text));
+          setUserAnswerText(text);
         })
-        .catch((err) => console.error("Transcribe failed:", err))
+        .catch((err: any) => {
+          console.error("Transcribe failed:", err);
+          if (active) {
+            setTranscribeError(err.message || String(err));
+          }
+        })
         .finally(() => {
           if (active) setIsTranscribing(false);
         });
@@ -204,7 +220,7 @@ export const InterviewDashboard: React.FC = () => {
     <div className="flex-1 flex items-center justify-center max-w-[960px] w-full mx-auto px-lg py-xl">
       <SEO title="AI 실시간 모의 면접" />
 
-      <div className="w-full bg-apple-surface-tile-1/20 border border-white/5 rounded-lg p-lg md:p-xl shadow-lg relative overflow-hidden">
+      <div className="w-full bg-white dark:bg-apple-surface-tile-1/20 border border-black/5 dark:border-white/5 rounded-lg p-lg md:p-xl shadow-md dark:shadow-lg relative overflow-hidden transition-colors duration-200">
         
         {/* --- 1. Setup Form --- */}
         {interviewStep === "setup" && (
@@ -220,6 +236,7 @@ export const InterviewDashboard: React.FC = () => {
               setPortfolioFile(file);
               setPortfolioText(text);
             }}
+            isStarting={isStarting}
             onSubmit={handleStartInterview}
           />
         )}
@@ -240,6 +257,7 @@ export const InterviewDashboard: React.FC = () => {
             userAnswerText={userAnswerText}
             onChangeAnswerText={setUserAnswerText}
             onSubmit={handleSubmitAnswer}
+            transcribeError={transcribeError}
           />
         )}
 

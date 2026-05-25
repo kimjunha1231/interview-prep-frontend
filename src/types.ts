@@ -22,10 +22,15 @@ export interface Question {
   references?: ReferenceItem[];
 }
 
+export interface ApiError {
+  code: string;
+  message: string;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
-  error?: string;
+  error?: ApiError;
 }
 
 export interface StartSessionRequest {

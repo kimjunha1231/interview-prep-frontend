@@ -1,23 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SubNav } from "./components/SubNav";
 import { HandbookDashboard } from "./features/handbook/components/HandbookDashboard";
 import { InterviewDashboard } from "./features/interview/components/InterviewDashboard";
 
 function App() {
   const [activeMode, setActiveMode] = useState<"handbook" | "interview">("handbook");
+  
+  // Theme state: default to 'dark' to respect the original design, but support toggling
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const saved = localStorage.getItem("theme");
+    return (saved === "light" || saved === "dark") ? saved : "dark";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    if (theme === "dark") {
+      root.classList.add("dark");
+      body.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+      body.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === "dark" ? "light" : "dark");
+  };
 
   return (
-    <div className="min-h-screen bg-apple-surface-black text-apple-body-on-dark flex flex-col font-sans antialiased selection:bg-apple-primary/30 selection:text-white">
+    <div className="min-h-screen bg-white dark:bg-black text-apple-ink dark:text-white flex flex-col font-sans antialiased transition-colors duration-200 selection:bg-apple-primary/30 selection:text-white">
 
       {/* 52px sub navigation with mode toggle - only shown for interview mode */}
       {activeMode === "interview" && (
-        <SubNav activeMode={activeMode} onChangeMode={setActiveMode} />
+        <SubNav 
+          activeMode={activeMode} 
+          onChangeMode={setActiveMode} 
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
       )}
 
       <main className="flex-1 flex flex-col">
         {/* Switch Mode Dashboards */}
         {activeMode === "handbook" ? (
-          <HandbookDashboard onSwitchMode={() => setActiveMode("interview")} />
+          <HandbookDashboard 
+            onSwitchMode={() => setActiveMode("interview")} 
+            theme={theme}
+            onToggleTheme={toggleTheme}
+          />
         ) : (
           <InterviewDashboard />
         )}

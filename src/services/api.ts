@@ -5,6 +5,38 @@ import type {
   InterviewHistoryResponse 
 } from "../types";
 
+/**
+ * Common helper to make HTTP requests and handle errors consistently
+ */
+async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
+  try {
+    const res = await fetch(url, options);
+    let data: ApiResponse<T>;
+    
+    try {
+      data = await res.json();
+    } catch (e) {
+      throw new Error(`서버 응답을 분석할 수 없습니다. (HTTP ${res.status})`);
+    }
+
+    if (!res.ok) {
+      throw new Error(data.error || `네트워크 오류가 발생했습니다. (HTTP ${res.status})`);
+    }
+
+    if (!data.success) {
+      throw new Error(data.error || "요청 처리에 실패했습니다.");
+    }
+
+    return data.data;
+  } catch (err: any) {
+    // Detect generic network connectivity issue
+    if (err.name === "TypeError" && err.message === "Failed to fetch") {
+      throw new Error("서버와의 연결이 원활하지 않습니다. 네트워크 연결을 확인해 주세요.");
+    }
+    throw err;
+  }
+}
+
 export const apiService = {
   /**
    * Fetch random questions for the Concept Handbook
@@ -14,11 +46,7 @@ export const apiService = {
     if (category) url += `&category=${category}`;
     if (subject) url += `&subject=${subject}`;
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<Question[]> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to fetch questions");
-    return data.data;
+    return fetchJson<Question[]>(url);
   },
 
   /**
@@ -32,22 +60,14 @@ export const apiService = {
     const queryString = params.toString();
     if (queryString) url += "?" + queryString;
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<Question[]> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to fetch questions");
-    return data.data;
+    return fetchJson<Question[]>(url);
   },
 
   /**
    * Fetch a single question by its ID
    */
   async getQuestion(id: number): Promise<Question> {
-    const res = await fetch(`/api/questions/${id}`);
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<Question> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to fetch question");
-    return data.data;
+    return fetchJson<Question>(`/api/questions/${id}`);
   },
 
   /**
@@ -60,7 +80,7 @@ export const apiService = {
     portfolioText?: string,
     subjects?: string[]
   ): Promise<InterviewSessionResponse> {
-    const res = await fetch("/api/interviews/sessions", {
+    return fetchJson<InterviewSessionResponse>("/api/interviews/sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -71,17 +91,13 @@ export const apiService = {
         subjects: subjects || undefined,
       }),
     });
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<InterviewSessionResponse> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to start interview session");
-    return data.data;
   },
 
   /**
    * Submit an answer to the current question
    */
-  async submitAnswer(sessionId: number, questionId: number, userAnswer: string): Promise<InterviewHistoryResponse> {
-    const res = await fetch(`/api/interviews/sessions/${sessionId}/answers`, {
+  async submitAnswer(accessKey: string, questionId: number, userAnswer: string): Promise<InterviewHistoryResponse> {
+    return fetchJson<InterviewHistoryResponse>(`/api/interviews/sessions/${accessKey}/answers`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -89,21 +105,13 @@ export const apiService = {
         userAnswer,
       }),
     });
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<InterviewHistoryResponse> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to submit answer");
-    return data.data;
   },
 
   /**
    * Fetch session history for reporting
    */
-  async getSessionHistory(sessionId: number): Promise<InterviewHistoryResponse[]> {
-    const res = await fetch(`/api/interviews/sessions/${sessionId}/history`);
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<InterviewHistoryResponse[]> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to fetch session history");
-    return data.data;
+  async getSessionHistory(accessKey: string): Promise<InterviewHistoryResponse[]> {
+    return fetchJson<InterviewHistoryResponse[]>(`/api/interviews/sessions/${accessKey}/history`);
   },
 
   /**
@@ -113,55 +121,43 @@ export const apiService = {
     const formData = new FormData();
     formData.append("file", audioBlob, "answer.wav");
 
-    const res = await fetch("/api/interviews/transcribe", {
+    const data = await fetchJson<{ text: string }>("/api/interviews/transcribe", {
       method: "POST",
       body: formData,
     });
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<{ text: string }> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to transcribe audio");
-    return data.data.text;
+    return data.text;
   },
 
   /**
    * Send interview feedback report via email
    */
-  async sendEmailReport(sessionId: number, email: string): Promise<void> {
-    const res = await fetch(`/api/interviews/sessions/${sessionId}/report/email`, {
+  async sendEmailReport(accessKey: string, email: string): Promise<void> {
+    await fetchJson<null>(`/api/interviews/sessions/${accessKey}/report/email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<null> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to send email report");
   },
 
   /**
    * Subscribe to the daily interview question newsletter
    */
   async subscribeNewsletter(email: string, category: string = "ALL"): Promise<void> {
-    const res = await fetch("/api/subscriptions/subscribe", {
+    await fetchJson<null>("/api/subscriptions/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, category }),
     });
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<null> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to subscribe to newsletter");
   },
 
   /**
    * Unsubscribe from the daily interview question newsletter
    */
   async unsubscribeNewsletter(email: string): Promise<void> {
-    const res = await fetch("/api/subscriptions/unsubscribe", {
+    await fetchJson<null>("/api/subscriptions/unsubscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const data: ApiResponse<null> = await res.json();
-    if (!data.success) throw new Error(data.error || "Failed to unsubscribe from newsletter");
   }
 };

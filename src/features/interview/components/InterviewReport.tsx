@@ -30,7 +30,7 @@ export const InterviewReport: React.FC<InterviewReportProps> = ({
     setEmailSent(false);
 
     try {
-      await apiService.sendEmailReport(sessionData.id, emailInput);
+      await apiService.sendEmailReport(sessionData.accessKey, emailInput);
       setEmailSent(true);
       setTimeout(() => setEmailSent(false), 5000);
       setEmailInput("");

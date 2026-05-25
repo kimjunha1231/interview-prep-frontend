@@ -135,7 +135,7 @@ export const InterviewDashboard: React.FC = () => {
     const questionId = sessionData.questions[currentQuestionIndex].id;
 
     try {
-      const data = await apiService.submitAnswer(sessionData.id, questionId, userAnswerText);
+      const data = await apiService.submitAnswer(sessionData.accessKey, questionId, userAnswerText);
       setGradingResult(data);
       setInterviewStep("feedback");
     } catch (err) {
@@ -164,7 +164,7 @@ export const InterviewDashboard: React.FC = () => {
   const fetchReportHistories = async () => {
     if (!sessionData) return;
     try {
-      const data = await apiService.getSessionHistory(sessionData.id);
+      const data = await apiService.getSessionHistory(sessionData.accessKey);
       setSessionHistories(data);
       setInterviewStep("report");
     } catch (err) {

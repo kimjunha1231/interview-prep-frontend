@@ -38,6 +38,7 @@ export interface StartSessionRequest {
 
 export interface InterviewSessionResponse {
   id: number;
+  accessKey: string;
   memberId: number | null;
   createdAt: string;
   questions: Array<{

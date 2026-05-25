@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface UseAudioRecorderResult {
   isRecording: boolean;
@@ -17,8 +17,25 @@ export const useAudioRecorder = (): UseAudioRecorderResult => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+
+  const revokeOldUrl = () => {
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioUrlRef.current) {
+        URL.revokeObjectURL(audioUrlRef.current);
+      }
+    };
+  }, []);
 
   const startRecording = async () => {
+    revokeOldUrl();
     setAudioUrl(null);
     setAudioBlob(null);
     audioChunksRef.current = [];
@@ -49,6 +66,7 @@ export const useAudioRecorder = (): UseAudioRecorderResult => {
       mediaRecorder.onstop = () => {
         const blob = new Blob(audioChunksRef.current, { type: mimeType });
         const url = URL.createObjectURL(blob);
+        audioUrlRef.current = url;
         setAudioBlob(blob);
         setAudioUrl(url);
 
@@ -75,6 +93,7 @@ export const useAudioRecorder = (): UseAudioRecorderResult => {
   };
 
   const clearAudio = () => {
+    revokeOldUrl();
     setAudioUrl(null);
     setAudioBlob(null);
     audioChunksRef.current = [];
@@ -89,3 +108,4 @@ export const useAudioRecorder = (): UseAudioRecorderResult => {
     clearAudio
   };
 };
+

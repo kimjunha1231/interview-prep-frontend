@@ -16,7 +16,7 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     try {
       data = await res.json();
     } catch (e) {
-      throw new Error(`서버 응답을 분석할 수 없습니다. (HTTP ${res.status})`);
+      throw new Error(`서버 응답을 분석할 수 없습니다. (HTTP ${res.status})`, { cause: e });
     }
 
     if (!res.ok) {
@@ -30,10 +30,12 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     }
 
     return data.data;
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Detect generic network connectivity issue
-    if (err.name === "TypeError" && err.message === "Failed to fetch") {
-      throw new Error("서버와의 연결이 원활하지 않습니다. 네트워크 연결을 확인해 주세요.");
+    if (err instanceof Error) {
+      if (err.name === "TypeError" && err.message === "Failed to fetch") {
+        throw new Error("서버와의 연결이 원활하지 않습니다. 네트워크 연결을 확인해 주세요.", { cause: err });
+      }
     }
     throw err;
   }

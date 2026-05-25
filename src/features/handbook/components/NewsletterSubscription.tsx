@@ -33,9 +33,10 @@ export const NewsletterSubscription: React.FC = () => {
       setSubscribed(true);
       setEmailInput("");
       setTimeout(() => setSubscribed(false), 5000);
-    } catch (err: any) {
-      console.error(err);
-      setSubError(err.message || "구독 등록에 실패했습니다.");
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
+      setSubError(error.message || "구독 등록에 실패했습니다.");
     } finally {
       setIsSubscribing(false);
     }
@@ -59,9 +60,10 @@ export const NewsletterSubscription: React.FC = () => {
       setUnsubscribed(true);
       setEmailInput("");
       setTimeout(() => setUnsubscribed(false), 5000);
-    } catch (err: any) {
-      console.error(err);
-      setSubError(err.message || "구독 해제에 실패했습니다.");
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
+      setSubError(error.message || "구독 해제에 실패했습니다.");
     } finally {
       setIsSubscribing(false);
     }

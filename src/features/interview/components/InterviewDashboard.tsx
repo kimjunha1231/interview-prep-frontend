@@ -129,10 +129,11 @@ export const InterviewDashboard: React.FC = () => {
           if (!active) return;
           setUserAnswerText(text);
         })
-        .catch((err: any) => {
-          console.error("Transcribe failed:", err);
+        .catch((err: unknown) => {
+          const error = err as Error;
+          console.error("Transcribe failed:", error);
           if (active) {
-            setTranscribeError(err.message || String(err));
+            setTranscribeError(error.message || String(error));
           }
         })
         .finally(() => {

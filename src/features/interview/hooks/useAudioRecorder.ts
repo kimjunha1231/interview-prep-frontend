@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
 const SpeechRecognition = typeof window !== "undefined"
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ? ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition)
   : null;
 
@@ -26,6 +27,7 @@ export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRec
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const audioUrlRef = useRef<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
 
   const revokeOldUrl = () => {
@@ -103,6 +105,7 @@ export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRec
 
           let finalTranscript = "";
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           recognition.onresult = (event: any) => {
             let interimTranscript = "";
             for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -118,6 +121,7 @@ export const useAudioRecorder = (options?: UseAudioRecorderOptions): UseAudioRec
             }
           };
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           recognition.onerror = (event: any) => {
             console.error("Speech recognition error:", event.error);
           };

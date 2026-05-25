@@ -125,9 +125,10 @@ export const InterviewReport: React.FC<InterviewReportProps> = ({
       setEmailSent(true);
       setTimeout(() => setEmailSent(false), 5000);
       setEmailInput("");
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err.message || "이메일 발송 중 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
+      setErrorMsg(error.message || "이메일 발송 중 오류가 발생했습니다.");
     } finally {
       setIsSending(false);
     }

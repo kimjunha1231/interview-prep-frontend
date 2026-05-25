@@ -165,7 +165,9 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({ question }) => {
   const [openHints, setOpenHints] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
-    setOpenHints({});
+    Promise.resolve().then(() => {
+      setOpenHints({});
+    });
   }, [question]);
 
   if (!question) {

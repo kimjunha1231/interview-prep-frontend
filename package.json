@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.14",
+    "@vercel/analytics": "^2.0.1",
     "lucide-react": "^1.16.0",
     "pdfjs-dist": "^4.0.370",
     "react": "^19.2.6",

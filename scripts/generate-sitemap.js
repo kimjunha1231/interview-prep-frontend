@@ -9,15 +9,31 @@ const DOMAIN = 'https://interview-handbook.co.kr';
 
 async function generateSitemap() {
   try {
-    // 1. Read questions.json to extract length
     const questionsJsonPath = path.resolve(__dirname, '../../backend/src/main/resources/questions.json');
-    if (!fs.existsSync(questionsJsonPath)) {
-      console.error(`Error: questions.json not found at ${questionsJsonPath}`);
-      process.exit(1);
-    }
+    const metadataPath = path.resolve(__dirname, './questions-metadata.json');
     
-    const questionsRaw = fs.readFileSync(questionsJsonPath, 'utf8');
-    const questions = JSON.parse(questionsRaw);
+    let count = 0;
+    
+    if (fs.existsSync(questionsJsonPath)) {
+      // Local development: Read backend questions.json and update local metadata
+      const questionsRaw = fs.readFileSync(questionsJsonPath, 'utf8');
+      const questions = JSON.parse(questionsRaw);
+      count = questions.length;
+      
+      // Update local metadata file for Vercel builds
+      fs.writeFileSync(metadataPath, JSON.stringify({ count }, null, 2), 'utf8');
+      console.log(`[Local] Updated questions-metadata.json with count: ${count}`);
+    } else if (fs.existsSync(metadataPath)) {
+      // Vercel build: Read from the committed questions-metadata.json
+      const metadataRaw = fs.readFileSync(metadataPath, 'utf8');
+      const metadata = JSON.parse(metadataRaw);
+      count = metadata.count || 0;
+      console.log(`[Vercel] Loaded question count from metadata: ${count}`);
+    } else {
+      // Fallback: Default to a safe estimated count so the build never crashes
+      count = 443;
+      console.warn(`[Fallback] questions.json and questions-metadata.json not found. Defaulting to: ${count}`);
+    }
     
     // 2. Build sitemap XML header
     let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -38,14 +54,14 @@ async function generateSitemap() {
     sitemap += `  </url>\n`;
     
     // Add each question detail page
-    questions.forEach((_, index) => {
-      const qId = index + 1; // Auto-increment matching rule in DB Seeding
+    for (let i = 0; i < count; i++) {
+      const qId = i + 1; // Auto-increment matching rule in DB Seeding
       sitemap += `  <url>\n`;
       sitemap += `    <loc>${DOMAIN}/?questionId=${qId}</loc>\n`;
       sitemap += `    <changefreq>weekly</changefreq>\n`;
       sitemap += `    <priority>0.6</priority>\n`;
       sitemap += `  </url>\n`;
-    });
+    }
     
     sitemap += '</urlset>\n';
     
@@ -59,7 +75,7 @@ async function generateSitemap() {
     }
     
     fs.writeFileSync(outputPath, sitemap, 'utf8');
-    console.log(`Successfully generated sitemap.xml with ${questions.length + 2} URLs.`);
+    console.log(`Successfully generated sitemap.xml with ${count + 2} URLs.`);
   } catch (error) {
     console.error('Error generating sitemap:', error);
     process.exit(1);

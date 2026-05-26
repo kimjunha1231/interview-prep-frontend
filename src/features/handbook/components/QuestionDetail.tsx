@@ -275,9 +275,13 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({ question }) => {
                   key={tqIdx}
                   className="bg-black/5 dark:bg-apple-surface-tile-1/20 border border-black/5 dark:border-white/5 rounded-lg overflow-hidden transition-all duration-200"
                 >
-                  {/* Question Row (Header of Card) */}
-                  <div
-                    className="p-md flex items-start justify-between gap-md cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 select-none"
+                  {/* Question Row (Header of Card) - Semantic Button */}
+                  <button
+                    type="button"
+                    id={`hint-btn-${tqIdx}`}
+                    aria-expanded={isOpen}
+                    aria-controls={`hint-panel-${tqIdx}`}
+                    className="w-full text-left p-md flex items-start justify-between gap-md hover:bg-black/5 dark:hover:bg-white/5 select-none focus:outline-none focus:ring-1 focus:ring-apple-primary/20 rounded-t-lg transition-colors"
                     onClick={() => {
                       setOpenHints(prev => ({
                         ...prev,
@@ -291,22 +295,26 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({ question }) => {
                         {tq.question}
                       </span>
                     </div>
-                    <button
-                      type="button"
+                    <div
                       className="text-gray-500 dark:text-apple-body-muted hover:text-apple-ink dark:hover:text-white transition-colors shrink-0 mt-[2px]"
-                      aria-label="모범 힌트 토글"
+                      aria-hidden="true"
                     >
                       <ChevronDown
                         className={`w-4 h-4 transition-transform duration-200 ${
                           isOpen ? "rotate-180 text-apple-primary dark:text-apple-primary-on-dark" : ""
                         }`}
                       />
-                    </button>
-                  </div>
+                    </div>
+                  </button>
 
-                  {/* Answer / Hint Panel (Collapsible) */}
+                  {/* Answer / Hint Panel (Collapsible) - Semantic Region */}
                   {isOpen && (
-                    <div className="px-md pb-md pt-xs border-t border-black/5 dark:border-white/5 bg-apple-canvas-parchment dark:bg-apple-surface-tile-2/20 text-gray-500 dark:text-apple-body-muted text-[13.5px] leading-[1.65]">
+                    <div 
+                      id={`hint-panel-${tqIdx}`}
+                      role="region"
+                      aria-labelledby={`hint-btn-${tqIdx}`}
+                      className="px-md pb-md pt-xs border-t border-black/5 dark:border-white/5 bg-apple-canvas-parchment dark:bg-apple-surface-tile-2/20 text-gray-500 dark:text-apple-body-muted text-[13.5px] leading-[1.65]"
+                    >
                       <div className="flex items-center gap-xs text-[11px] font-mono text-apple-primary dark:text-apple-primary-on-dark mb-sm select-none">
                         <HelpCircle className="w-3.5 h-3.5" />
                         <span>모범 힌트 & 해설</span>
@@ -339,6 +347,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({ question }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-xs px-sm py-[6px] bg-black/5 dark:bg-apple-surface-tile-1/40 border border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/20 text-apple-primary dark:text-apple-primary-on-dark rounded-md text-[13px] font-medium transition-all"
+                aria-label={`${ref.name} (새 창에서 열기)`}
               >
                 <span>{ref.name}</span>
                 <ExternalLink className="w-3.5 h-3.5 shrink-0" />

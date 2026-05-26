@@ -44,7 +44,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   const sidebarHeader = getSidebarHeader(selectedCategory);
   
   const sectionRef = useRef<HTMLElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     if (sectionRef.current) {
@@ -65,10 +65,12 @@ export const QuestionList: React.FC<QuestionListProps> = ({
         </h3>
       </div>
       
-      {/* Questions list container */}
-      <div ref={containerRef} className="flex flex-col gap-xxs overflow-y-auto pr-xs">
+      {/* Questions list container (Semantic ul with role="list") */}
+      <ul ref={containerRef} className="flex flex-col gap-xxs overflow-y-auto pr-xs" role="list">
         {loading ? (
-          <Skeleton count={8} className="h-[36px] mb-xxs bg-black/5 dark:bg-white/5" />
+          <div aria-busy="true" aria-live="polite" className="w-full">
+            <Skeleton count={8} className="h-[36px] mb-xxs bg-black/5 dark:bg-white/5" />
+          </div>
         ) : questions.length > 0 ? (
           questions.map((q) => {
             const isActive = selectedQuestionId === q.id;
@@ -91,7 +93,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
             }
 
             return (
-              <div
+              <li
                 key={q.id}
                 className={`flex flex-col gap-xxs p-sm rounded-md transition-all group w-full ${
                   isActive
@@ -108,6 +110,8 @@ export const QuestionList: React.FC<QuestionListProps> = ({
                       : "text-gray-700 dark:text-apple-body-on-dark hover:text-apple-ink dark:hover:text-white"
                   }`}
                   title={q.title}
+                  aria-selected={isActive}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   <span className="block line-clamp-2 w-full break-all">
                     {displayName}
@@ -123,20 +127,21 @@ export const QuestionList: React.FC<QuestionListProps> = ({
                         onChangeCategory(matchedKey);
                       }}
                       className="px-xs py-[2px] text-[10px] font-medium rounded-pill bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-gray-400 dark:text-apple-body-muted/80 hover:text-apple-primary dark:hover:text-apple-primary-on-dark hover:border-apple-primary/30 dark:hover:border-apple-primary-on-dark/30 hover:bg-apple-primary/5 dark:hover:bg-apple-primary-on-dark/5 transition-all select-none"
+                      aria-label={`${matchedLabel} 과목 질문 필터링`}
                     >
                       {matchedLabel}
                     </button>
                   </div>
                 )}
-              </div>
+              </li>
             );
           })
         ) : (
-          <div className="text-center py-xxl text-gray-400 dark:text-apple-body-muted text-xs font-mono">
+          <li className="text-center py-xxl text-gray-400 dark:text-apple-body-muted text-xs font-mono list-none">
             질문이 없습니다.
-          </div>
+          </li>
         )}
-      </div>
+      </ul>
     </section>
   );
 };

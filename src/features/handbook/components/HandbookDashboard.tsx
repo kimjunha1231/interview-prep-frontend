@@ -9,6 +9,7 @@ import { SUBJECT_MAPS } from "../../../constants/subjects";
 import { getSyntheticOverview } from "../../../constants/overviews";
 import type { Question } from "../../../types";
 import { Button } from "../../../components/ui/Button";
+import { SEO } from "../../../components/SEO";
 
 interface HandbookDashboardProps {
   onSwitchMode: () => void;
@@ -219,6 +220,11 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-white dark:bg-black transition-colors duration-200">
+      <SEO
+        title={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.title : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 면접 준비` : undefined)}
+        description={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.summary : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 관련 기술 면접 핵심 개념 학습 및 대표 질문 리스트를 확인해보세요.` : undefined)}
+        question={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion : null}
+      />
       {/* 1. Docusaurus style dynamic top-nav */}
       <header className="bg-white/80 dark:bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-ink dark:text-apple-body-on-dark h-[52px] px-lg flex items-center justify-between sticky top-0 z-50 border-b border-black/5 dark:border-white/5 select-none transition-colors duration-200 gap-md">
         <div className="flex items-center gap-md shrink-0">

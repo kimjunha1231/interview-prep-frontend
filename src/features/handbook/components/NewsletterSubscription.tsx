@@ -91,8 +91,10 @@ export const NewsletterSubscription: React.FC = () => {
           매일 오전 9시, 엄선된 1개의 면접 질문과 해설지를 메일로 발송해 드립니다.
         </p>
         <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-xxs mt-xxs">
+          <label htmlFor="subscriber-email" className="sr-only">구독 이메일 주소</label>
           <input
             type="email"
+            id="subscriber-email"
             placeholder="yourname@domain.com"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
@@ -101,7 +103,9 @@ export const NewsletterSubscription: React.FC = () => {
             className="w-full bg-apple-canvas-parchment dark:bg-apple-surface-black border border-black/10 dark:border-white/10 rounded-md py-xs px-sm text-[12px] text-apple-ink dark:text-white placeholder-gray-400 dark:placeholder-apple-body-muted/40 focus:outline-none focus:border-apple-primary transition-all disabled:opacity-50"
           />
           
+          <label htmlFor="subscriber-category" className="sr-only">구독 질문 카테고리</label>
           <select
+            id="subscriber-category"
             value={subscriptionCategory}
             onChange={(e) => setSubscriptionCategory(e.target.value)}
             disabled={isSubscribing}
@@ -176,11 +180,12 @@ export const NewsletterSubscription: React.FC = () => {
           onClick={handleCopyEmail}
           className="flex items-center justify-between bg-apple-canvas-parchment dark:bg-apple-surface-black border border-black/10 dark:border-white/10 rounded-md py-xs px-sm text-[12px] text-apple-ink dark:text-white mt-xxs cursor-pointer hover:border-apple-primary/30 dark:hover:border-apple-primary/30 transition-all text-left w-full focus:outline-none"
           title="이메일 주소 복사"
+          aria-label="fullstackquestion@gmail.com 이메일 주소 복사"
         >
           <span className="font-mono text-[11px] text-apple-primary dark:text-apple-primary-on-dark truncate">
             fullstackquestion@gmail.com
           </span>
-          <span className="text-[10px] text-gray-400 dark:text-apple-body-muted/60 shrink-0 ml-xs select-none">
+          <span className="text-[10px] text-gray-400 dark:text-apple-body-muted/60 shrink-0 ml-xs select-none" aria-hidden="true">
             {emailCopied ? "복사 완료" : "복사"}
           </span>
         </button>

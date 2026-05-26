@@ -15,9 +15,9 @@ export const SubNav: React.FC<SubNavProps> = ({
   onToggleTheme 
 }) => {
   return (
-    <div 
+    <nav 
       className="bg-white/80 dark:bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-ink dark:text-apple-body-on-dark h-[52px] px-lg flex items-center justify-between sticky top-0 z-50 border-b border-black/5 dark:border-white/5 select-none transition-colors duration-200"
-      aria-label="Sub navigation"
+      aria-label="서브 네비게이션"
     >
       <div className="flex items-center gap-xs">
         <h1 className="text-[17px] font-display font-semibold tracking-tight text-apple-ink dark:text-white">
@@ -64,6 +64,7 @@ export const SubNav: React.FC<SubNavProps> = ({
             }`}
             role="switch"
             aria-checked={theme === "dark"}
+            aria-label="다크 모드 토글"
             title={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
           >
             <div
@@ -75,7 +76,7 @@ export const SubNav: React.FC<SubNavProps> = ({
           <Moon className="w-3.5 h-3.5 text-gray-400 dark:text-amber-300 fill-transparent dark:fill-amber-300/20" />
         </div>
       </div>
-    </div>
+    </nav>
   );
 };
 

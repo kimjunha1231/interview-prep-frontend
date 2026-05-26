@@ -8,11 +8,14 @@ import type { InterviewHistoryResponse, InterviewSessionResponse } from "../../.
 import { apiService } from "../../../services/api";
 
 function normalizeMarkdown(text: string): string {
-  return text
+  if (!text) return "";
+  const normalized = text
     .replace(/\*\*\u2018/g, "**'")
     .replace(/\u2019\*\*/g, "'**")
     .replace(/\*\*\u201C/g, '**"')
     .replace(/\u201D\*\*/g, '"**');
+
+  return normalized.replace(/([\)\].'\",;:!?])\*\*([가-힣a-zA-Z0-9])/g, "$1\u200B**$2");
 }
 
 const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {

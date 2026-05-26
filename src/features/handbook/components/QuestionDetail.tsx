@@ -15,13 +15,19 @@ interface QuestionDetailProps {
  * whole phrase using straight quotes, which the parser handles reliably.
  */
 function normalizeMarkdown(text: string): string {
+  if (!text) return "";
   // Replace curly single-quotes immediately adjacent to ** with straight ones
   // so the parser sees word characters right after the delimiter run.
-  return text
+  const normalized = text
     .replace(/\*\*\u2018/g, "**'")
     .replace(/\u2019\*\*/g, "'**")
     .replace(/\*\*\u201C/g, '**"')
     .replace(/\u201D\*\*/g, '"**');
+
+  // Fix CommonMark parser limitation: when a closing delimiter ** is preceded by a punctuation (like ')')
+  // and immediately followed by a letter (like Korean particles '를', '와'), it fails to parse as bold.
+  // We insert a Zero-Width Space (\u200B) BEFORE the closing ** to allow correct bold formatting.
+  return normalized.replace(/([\)\].'\",;:!?])\*\*([가-힣a-zA-Z0-9])/g, "$1\u200B**$2");
 }
 
 // react-markdown v8: handle `pre` as the outer block wrapper, `code` as the inner

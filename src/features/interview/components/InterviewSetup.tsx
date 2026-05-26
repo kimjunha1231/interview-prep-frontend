@@ -138,7 +138,7 @@ export const InterviewSetup: React.FC<InterviewSetupProps> = ({
                 onClick={() => handleCategoryClick(cat)}
                 className={`py-sm rounded-md text-xs font-semibold uppercase tracking-wider transition-all duration-300 ease-out-expo border ${
                   interviewCategory === cat
-                    ? "bg-apple-ink border-apple-ink text-white dark:bg-white dark:border-white dark:text-apple-ink shadow-sm"
+                    ? "bg-apple-primary border-apple-primary text-white dark:bg-white dark:border-white dark:text-apple-ink shadow-sm"
                     : "bg-black/5 dark:bg-apple-surface-tile-1/30 border-black/5 dark:border-white/5 text-gray-500 dark:text-apple-body-muted hover:border-black/10 dark:hover:border-white/20"
                 }`}
               >
@@ -161,7 +161,7 @@ export const InterviewSetup: React.FC<InterviewSetupProps> = ({
                 onClick={() => onChangeCount(num)}
                 className={`py-sm rounded-md text-xs font-semibold transition-all duration-300 ease-out-expo border ${
                   questionCount === num
-                    ? "bg-apple-ink border-apple-ink text-white dark:bg-white dark:border-white dark:text-apple-ink shadow-sm"
+                    ? "bg-apple-primary border-apple-primary text-white dark:bg-white dark:border-white dark:text-apple-ink shadow-sm"
                     : "bg-black/5 dark:bg-apple-surface-tile-1/30 border-black/5 dark:border-white/5 text-gray-500 dark:text-apple-body-muted hover:border-black/10 dark:hover:border-white/20"
                 }`}
               >

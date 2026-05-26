@@ -24,7 +24,7 @@ export const Button: React.FC<ButtonProps> = ({
   const variants = {
     primary: "bg-apple-primary hover:bg-apple-primary-focus text-white rounded-pill shadow-[0_4px_12px_rgba(0,102,204,0.15)]",
     secondary: "bg-transparent border border-apple-primary hover:border-apple-primary-focus text-apple-primary hover:text-apple-primary-focus rounded-pill",
-    "dark-utility": "bg-apple-surface-tile-1 border border-white/10 hover:border-white/20 text-white rounded-md",
+    "dark-utility": "bg-apple-canvas-parchment dark:bg-apple-surface-tile-1 border border-black/10 dark:border-white/10 hover:bg-gray-200 dark:hover:border-white/20 text-apple-ink dark:text-white rounded-md",
     ghost: "bg-transparent text-apple-primary hover:text-apple-primary-focus",
     white: "bg-white hover:bg-apple-canvas-parchment text-apple-ink rounded-md",
     danger: "bg-red-500 hover:bg-red-600 text-white rounded-pill shadow-[0_4px_12px_rgba(239,68,68,0.2)]",

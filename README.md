@@ -1,73 +1,53 @@
-# React + TypeScript + Vite
+# Interview Handbook - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19, TypeScript, 그리고 Vite 번들링 환경으로 구축된 **Interview Handbook** 클라이언트 애플리케이션입니다.
+텍스트에 대한 집중도를 극대화할 수 있도록 미니멀하게 절제된 **Apple Minimalist Dark Theme** 디자인 규격(DESIGN.md)을 준수하며 개발되었습니다.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🎨 디자인 시스템 및 테마 가이드
+- **Color Theme**: Pure Jet Black (`#000000`) 캔버스를 배경으로 하고, 컴포넌트 레이아웃 패널은 어두운 회색 계열의 Apple System Gray (`#1C1C1E` / `#2C2C2E`)를 사용하여 입체감을 연출합니다.
+- **Elevation**: 과도한 드롭 섀도우(Drop Shadow)를 배제하고 오직 1px의 투명 미세 보더(`border border-white/5` 혹은 `border-white/10`) 오버레이만 사용하여 경계를 처리합니다.
+- **Typography**: 크로스 플랫폼 한글 자간/장평 정합성을 위해 Apple 최적화 한글 글꼴인 **Pretendard 정적 폰트**를 로컬 서빙하여 Windows, Android, macOS 등 이종 플랫폼 간 동일한 가독성을 제공합니다.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ⚡ 주요 기술 구현 및 최적화 포인트
 
-## Expanding the ESLint configuration
+### 1. 정적 질문 데이터셋 0ms 캐싱 (TanStack Query v5)
+- 개념 학습 핸드북의 질문 데이터는 정적인 리소스로 실시간 동기화가 불필요합니다.
+- `useQuery` 호출 시 `staleTime: Infinity` 및 `gcTime: Infinity` 설정을 부여하여, 탭 전환 시 중복 API 요청을 원천 차단하고 즉각적인 화면 렌더링(0ms)을 제공합니다.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 2. 브라우저 사이드 PDF 파싱 (Edge Computing)
+- 사용자가 이력서(PDF) 분석을 요청할 때 백엔드로 대용량 바이너리 파일을 전송하지 않습니다.
+- 프론트엔드의 `PDF.js` 라이브러리를 가동하여 브라우저 메모리 내에서 직접 PDF의 텍스트 노드만을 파싱 및 정제하여 문자열 데이터셋만 전송함으로써 서버의 네트워크 대역폭과 RAM 자원을 보호합니다.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 3. MediaRecorder API 기반 음성 캡처
+- 사용자의 마이크 입력 스트림을 캡처하여 최적의 오디오 포맷 Blob 데이터를 생성하고, 백엔드의 STT 교정 레이어(`/api/interviews/transcribe`)로 고속 송신할 수 있는 Multipart 폼데이터 파이프라인을 구축했습니다.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 4. 반응형 레이아웃 붕괴 방지 및 스크롤 복원 (Scroll Restoration)
+- **부드러운 탭 스크롤**: 화면을 반으로 줄이거나 중간 해상도 환경에서 상단 네비게이션바의 카테고리 탭들이 찌그러지지 않고 자연스럽게 가로 스크롤되도록 `flex-1 min-w-0`를 지정했으며, 우측 핵심 액션 버튼들에 `whitespace-nowrap shrink-0`을 선언하여 텍스트 세로 꺾임 현상을 원천 방어했습니다.
+- **컨테이너 스크롤 탑 복구**: 리액트가 컴포넌트를 언마운트하지 않고 재사용(Reconciliation)할 때 스크롤바가 하단에 정체되어 다음 페이지 본문 상단이 가려지는 UX 결함을 해결하기 위해, 중앙 패널 및 좌측 질문 리스트 `section`에 `useRef`를 걸어 상태 변경 시점에 런타임 `scrollTop = 0`을 동기 주입합니다.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 5. 마크다운 특수문자 조사 깨짐 우회 (ZWSP 필터링)
+- 닫는 볼드 기호(`**`) 바로 뒤에 한글 조사(은/는/이/가)가 오거나 닫는 괄호 `)`와 인접할 때 `react-markdown` 내부 파서(micromark)가 이를 닫는 기호로 정확히 판정하지 못하는 CommonMark 한계를 보완하기 위해, 렌더링 전 닫는 `**` 바로 앞에 Zero-Width Space(`\u200B`)를 주입하는 정규식 필터(`normalizeMarkdown`)를 설계하여 마크다운 깨짐 현상을 0%로 소거했습니다.
+
+---
+
+## 🛠️ 실행 및 빌드 방법
+
+### 의존성 패키지 설치
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 로컬 개발 서버 구동
+```bash
+npm run dev
+```
+- 백엔드 연동 및 CORS 우회를 위해 `vite.config.ts`의 `server.proxy` 설정을 활용해 `/api` 요청을 로컬 백엔드 포트(`http://localhost:8080`)로 프록시 중계합니다.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 프로덕션 빌드 및 타입 검사
+```bash
+npm run build
 ```

@@ -1,0 +1,99 @@
+import type { Question } from "../types";
+
+/**
+ * 핸드북 카테고리별 정적 개요(Overview) 데이터.
+ * HandbookDashboard.tsx에서 분리하여 컴포넌트 가독성을 높입니다.
+ */
+const OVERVIEWS: Record<string, { title: string; summary: string; explanation: string; caveats: string }> = {
+  HOME: {
+    title: "Handbooks 개요",
+    summary: "Interview Handbook 개념 학습 안내 가이드",
+    explanation: "Interview Handbook 개념 학습 핸드북에 오신 것을 환영합니다!\n\n본 핸드북은 **JavaScript, React, 네트워크, OS, 데이터베이스, 백엔드(Java/Spring), 아키텍처, 알고리즘** 등 400개 이상의 기술 면접 문항을 마크다운 기반 개발 문서 형식으로 명쾌하게 해설한 학습실입니다.\n\n상단의 카테고리 네비게이션을 통해 원하는 과목으로 즉시 이동하여 질문 목록을 탐색하고 개별 핵심 요약, 상세 설명, 그리고 면접 시 실수하기 쉬운 주의 사항을 미리 숙지해 보세요.",
+    caveats: "본 개념 학습실에 기재된 모범 답안들은 모의 면접(Mock Interview) 세션에서 AI 면접관이 채점 기준을 산출할 때의 뼈대로 적용됩니다.\n\n암기식 대답을 지양하고, 원리 이해 및 실제 실무 트레이드오프 경험을 곁들여 나만의 언어로 정리하는 훈련을 권장합니다."
+  },
+  JAVASCRIPT: {
+    title: "JavaScript / TypeScript 개요",
+    summary: "자바스크립트(JavaScript)의 핵심 원리와 TypeScript 타입 시스템 학습 가이드",
+    explanation: "자바스크립트는 웹 브라우저뿐만 아니라 Node.js를 통해 서버 사이드에서도 실행되는 현대 웹의 핵심 프로그래밍 언어입니다.\n\n본 과목(총 **123개** 문항)에서는 자바스크립트의 실행 엔진 동작 원리(Call Stack, Execution Context, Event Loop)부터 시작해 프로토타입 기반 상속, 클로저, 비동기 처리, 그리고 TypeScript의 타입 추론 및 제네릭 등 기술 면접에서 단골로 출제되는 핵심 이론을 다룹니다.",
+    caveats: "V8 엔진의 내부 최적화 기법(Hidden Class, Inline Cache 등)은 브라우저 엔진에 종속적이므로 표준 ECMA 스펙과 구분하여 이해해야 합니다.\n\n마이크로태스크(Microtask)와 매크로태스크(Macrotask)의 실행 우선순위 차이는 비동기 디버깅 시 자주 발생하는 실수이므로 명확히 인지하세요."
+  },
+  REACT: {
+    title: "React / Next.js 개요",
+    summary: "현대 선언적 웹 UI 라이브러리인 React의 코어 메커니즘과 Next.js 앱 라우팅",
+    explanation: "React는 컴포넌트 기반의 선언적 프로그래밍 모델을 제시하며 웹 프론트엔드 생태계를 주도해 왔습니다.\n\n본 과목(총 **35개** 문항)에서는 React의 Virtual DOM 렌더링 최적화, Reconciliation 알고리즘, Hooks의 내부 구현 원리, 그리고 Next.js의 App Router, RSC(React Server Components), SSR/SSG/ISR 전략 등 고급 프론트엔드 아키텍처 이론을 명쾌하게 파헤칩니다.",
+    caveats: "Virtual DOM이 무조건 일반 DOM보다 빠르다는 오해는 지양해야 합니다. 비교 연산 오버헤드가 발생할 수 있으므로 최적화 시점을 정확히 판단해야 합니다.\n\nHook은 오직 React 함수형 컴포넌트 내부 및 커스텀 Hook 내에서만 호출되어야 하는 실행 규칙(Rule of Hooks)이 존재합니다."
+  },
+  HTML_CSS: {
+    title: "HTML / CSS · 웹 성능 개요",
+    summary: "웹 표준·레이아웃 시스템, 웹 접근성, 그리고 Core Web Vitals 최적화",
+    explanation: "HTML과 CSS는 웹 인터페이스의 뼈대와 디자인을 결정하는 웹 표준 기술입니다.\n\n본 과목(총 **33개** 문항)에서는 시맨틱 HTML을 활용한 SEO 최적화와 웹 접근성(a11y) 보장법, CSS Flexbox 및 Grid 레이아웃의 실무적 적용, 브라우저 하드웨어 가속을 활용한 렌더링 성능 최적화, 그리고 LCP·CLS·INP·TTFB 등 Core Web Vitals 지표 개선 전략을 다룹니다.",
+    caveats: "CSS 애니메이션 구현 시 `width`/`height` 대신 `transform`/`opacity`를 사용해야 리플로우(Reflow)와 리페인트(Repaint)를 건너뛰고 GPU 가속을 통해 60fps 프레임을 부드럽게 확보할 수 있습니다.\n\n웹 접근성은 스크린 리더 지원에만 머무르지 않고, 적절한 명도 대비 및 키보드 초점 이동 규칙을 보장하는 것이 포함됩니다."
+  },
+  NETWORK: {
+    title: "네트워크 개요",
+    summary: "HTTP, TCP/IP, DNS, 보안 프로토콜 등 웹 통신의 근간",
+    explanation: "네트워크는 모든 웹 애플리케이션의 기반이 되는 통신 인프라입니다.\n\n본 과목(총 **71개** 문항)에서는 TCP/IP 4계층 모델, HTTP/1.1 → HTTP/2 → HTTP/3(QUIC) 프로토콜 진화 과정, DNS 조회 과정, TLS/SSL 핸드셰이크, CORS, 웹소켓, REST vs GraphQL 등 실무 및 면접에서 빈출되는 네트워크 이론 전반을 다룹니다.",
+    caveats: "HTTP/2의 멀티플렉싱은 Head-of-Line Blocking(HOLB)을 해소하지만, HTTP/3(QUIC)은 이를 UDP 기반 전송으로 더욱 개선합니다. 두 프로토콜의 차이를 명확히 구분하세요.\n\nCORS는 서버가 브라우저에게 허용 출처를 알려주는 메커니즘입니다. 서버 설정 문제이지 클라이언트 측에서 우회할 수 없다는 점을 명심하세요."
+  },
+  OS: {
+    title: "OS · 컴퓨터 구조 개요",
+    summary: "운영체제 핵심 원리, 프로세스/스레드, 메모리 관리, 컴퓨터 아키텍처",
+    explanation: "운영체제(OS)는 하드웨어와 소프트웨어 사이의 인터페이스로, 모든 프로그램의 실행 기반을 제공합니다.\n\n본 과목(총 **37개** 문항)에서는 프로세스와 스레드의 차이, 컨텍스트 스위칭, 데드락(Deadlock), 메모리 관리(가상 메모리, 페이징, 세그멘테이션), CPU 스케줄링 알고리즘 등 CS 전공 필수 이론을 다룹니다. 또한 컴퓨터 구조(CPU 파이프라이닝, 캐시 메모리, 명령어 집합 구조)도 함께 학습합니다.",
+    caveats: "프론트엔드 관점에서 브라우저는 멀티 프로세스 구조(Browser, Renderer, GPU, Network 프로세스)를 갖습니다. 이 구조를 이해하면 웹 성능 디버깅에 큰 도움이 됩니다.\n\n동시성(Concurrency)과 병렬성(Parallelism)의 차이, 그리고 자바스크립트의 단일 스레드 이벤트 루프와의 관계를 명확히 설명할 수 있어야 합니다."
+  },
+  DATABASE: {
+    title: "데이터베이스 개요",
+    summary: "관계형 DB, SQL, 트랜잭션, 인덱싱, NoSQL 전략",
+    explanation: "데이터베이스는 애플리케이션의 상태를 영속적으로 저장하고 조회하는 핵심 인프라입니다.\n\n본 과목(총 **22개** 문항)에서는 관계형 데이터베이스(RDBMS)의 ACID 트랜잭션 속성, 정규화(Normalization), 인덱스(Index) 원리와 B-Tree 구조, 실행 계획(Explain) 분석법, 그리고 NoSQL(MongoDB, Redis) 사용 전략 등을 다룹니다.",
+    caveats: "인덱스는 읽기 성능을 향상시키지만 쓰기 성능을 저하시킵니다. 과도한 인덱스 생성은 오히려 역효과를 낳을 수 있습니다.\n\nN+1 쿼리 문제는 ORM 사용 시 가장 자주 발생하는 성능 이슈입니다. `JOIN` 또는 `Eager Loading` 전략으로 해결할 수 있습니다."
+  },
+  BACKEND: {
+    title: "백엔드 (Java · Spring · DevOps) 개요",
+    summary: "Java 언어 심화, Spring Framework 핵심 원리, DevOps 배포 인프라",
+    explanation: "현대 백엔드 개발은 안정적인 언어 기반 위에 프레임워크가 제공하는 추상화와 인프라 자동화의 조합으로 이루어집니다.\n\n본 과목(총 **53개** 문항)에서는 Java의 JVM 메모리 구조·GC 알고리즘·동시성 처리, Spring Framework의 IoC/DI 컨테이너·AOP·트랜잭션 관리·Spring Security, 그리고 Docker·CI/CD 파이프라인·Kubernetes 기초 등 실무 중심 백엔드 이론을 다룹니다.",
+    caveats: "Spring의 `@Transactional`은 같은 빈(Bean) 내부에서 메서드를 호출하면 프록시를 거치지 않아 트랜잭션이 적용되지 않는 **Self-Invocation 문제**가 발생합니다.\n\nDocker 컨테이너는 VM과 달리 OS 커널을 공유합니다. 따라서 호스트 OS와 다른 커널 기능이 필요한 경우 컨테이너만으로는 해결이 불가능합니다."
+  },
+  ARCHITECTURE: {
+    title: "소프트웨어 아키텍처 개요",
+    summary: "SOLID 원칙, 디자인 패턴, 시스템 설계, 소프트웨어 엔지니어링 이론",
+    explanation: "지속 가능하고 확장 가능한 소프트웨어를 만들기 위해서는 견고한 아키텍처 설계 원칙이 필요합니다.\n\n본 과목(총 **46개** 문항)에서는 OOP의 SOLID 원칙, GoF 디자인 패턴(Creational·Structural·Behavioral), 마이크로서비스 아키텍처(MSA) vs 모놀리스 비교, DDD(Domain-Driven Design), 대규모 시스템 설계(System Design) 접근 방법 등을 다룹니다.",
+    caveats: "과도한 추상화와 설계 패턴 도입은 오히려 코드 복잡성을 가중시키는 오버 엔지니어링이 될 수 있으므로 YAGNI(You Aren't Gonna Need It) 원칙과 균형을 맞춰야 합니다.\n\n시스템 설계 면접에서는 정답보다 **트레이드오프(Trade-off)를 인식하고 논리적으로 선택하는 과정**을 평가합니다. 완벽한 설계보다 합리적인 의사결정 과정을 보여주세요."
+  },
+  ALGORITHM: {
+    title: "자료구조 · 알고리즘 개요",
+    summary: "효율적인 문제 해결과 시간/공간 복잡도 분석",
+    explanation: "알고리즘과 자료구조는 효율적인 데이터 처리 및 메모리 관리를 위한 개발자의 기본 소양입니다.\n\n본 과목(총 **16개** 문항)에서는 배열, 연결 리스트, 스택, 큐, 해시 테이블, 트리, 그래프 등 핵심 자료구조의 특징과 시간 복잡도를 명확히 파악하고, 정렬/탐색 알고리즘의 동작 원리와 최적 사용 시나리오를 학습합니다.",
+    caveats: "자바스크립트는 내장 `Array.prototype.sort()` 메소드가 문자열 정렬 기준으로 동작하므로 숫자 정렬 시 반드시 비교 함수 `(a, b) => a - b`를 주입해 주어야 합니다.\n\n재귀 함수 사용 시 자바스크립트 콜 스택 제한(약 1만 개)으로 인해 발생 가능한 Stack Overflow 예외를 항상 대비하여 반복문이나 꼬리 재귀 최적화 검토가 필요합니다."
+  },
+  ALL: {
+    title: "전체 질문 모음 개요",
+    summary: "모든 주제의 면접 질문을 한눈에 탐색",
+    explanation: "Interview Handbook의 **전체 질문(400개+)** 을 한 곳에서 탐색합니다.\n\n특정 주제에 얽매이지 않고 유연하게 지식을 점검하거나, 검색 기능을 활용해 원하는 키워드로 질문을 빠르게 찾을 수 있습니다.",
+    caveats: "전체 질문 목록은 양이 많으므로 상단 검색창(⌘K)을 활용해 키워드로 필터링하면 더욱 효율적으로 학습할 수 있습니다."
+  }
+};
+
+/**
+ * 주어진 과목 키에 대한 합성 개요(Overview) Question 객체를 생성합니다.
+ * 실제 DB에서 조회하는 질문이 아닌, 카테고리 소개 용도의 정적 콘텐츠입니다.
+ */
+export function getSyntheticOverview(subjectKey: string): Question {
+  const overview = OVERVIEWS[subjectKey] || {
+    title: "개요",
+    summary: "개념 학습 안내",
+    explanation: "주제를 선택하여 학습을 시작하세요.",
+    caveats: ""
+  };
+
+  return {
+    id: -1,
+    category: "OVERVIEW",
+    subject: subjectKey,
+    title: overview.title,
+    perfectAnswer: "",
+    summary: overview.summary,
+    explanation: overview.explanation,
+    caveats: overview.caveats,
+    references: []
+  };
+}

@@ -6,19 +6,8 @@ import { InterviewSetup } from "./InterviewSetup";
 import { InterviewOngoing } from "./InterviewOngoing";
 import { InterviewFeedback } from "./InterviewFeedback";
 import { InterviewReport } from "./InterviewReport";
+import { getDbSubjectsForKey } from "../../../constants/subjects";
 import type { InterviewSessionResponse, InterviewHistoryResponse } from "../../../types";
-
-const SUBJECT_DB_MAPS: Record<string, string[]> = {
-  JAVASCRIPT: ["javascript", "typescript"],
-  REACT: ["react", "nextjs"],
-  HTML_CSS: ["html_css", "web_performance"],
-  NETWORK: ["network"],
-  OS: ["os", "computer_architecture"],
-  DATABASE: ["database"],
-  BACKEND: ["java", "spring", "devops"],
-  ARCHITECTURE: ["software_engineering", "system_design", "design_pattern"],
-  ALGORITHM: ["algorithm", "data_structure"],
-};
 
 export const InterviewDashboard: React.FC = () => {
   const [interviewStep, setInterviewStep] = useState<"setup" | "ongoing" | "feedback" | "report">("setup");
@@ -69,10 +58,7 @@ export const InterviewDashboard: React.FC = () => {
       let dbSubjects: string[] = [];
       if (interviewCategory !== "PORTFOLIO") {
         selectedSubjects.forEach((key) => {
-          const mapped = SUBJECT_DB_MAPS[key];
-          if (mapped) {
-            dbSubjects = [...dbSubjects, ...mapped];
-          }
+          dbSubjects = [...dbSubjects, ...getDbSubjectsForKey(key)];
         });
       }
 

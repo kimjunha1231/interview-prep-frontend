@@ -178,13 +178,20 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
 
   // Client-side filtering logic
   const filteredQuestions = (searchQuery.trim() ? allQuestions : questionsData).filter(q => {
-    if (q.id === -1) return true; // Keep synthetic overview always
-    if (!searchQuery.trim()) return true;
+    if (!searchQuery.trim()) {
+      if (q.id === -1) return true; // Keep synthetic overview always
+      return true;
+    }
+    // If search query is present, do not show synthetic overview card
+    if (q.id === -1) return false;
+    
     const query = searchQuery.toLowerCase();
     return (
       q.title.toLowerCase().includes(query) ||
       (q.summary && q.summary.toLowerCase().includes(query)) ||
       (q.explanation && q.explanation.toLowerCase().includes(query)) ||
+      (q.perfectAnswer && q.perfectAnswer.toLowerCase().includes(query)) ||
+      (q.caveats && q.caveats.toLowerCase().includes(query)) ||
       q.subject.toLowerCase().includes(query)
     );
   });
@@ -312,15 +319,18 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
         {/* Column A: Left Sidebar (Question List) */}
         <div className={`w-full md:w-auto ${mobileView === "detail" ? "hidden md:block" : "block"}`}>
           <QuestionList
-            selectedCategory={selectedSubjectKey}
-            onChangeCategory={setSelectedSubjectKey}
+            selectedCategory={searchQuery.trim() ? "SEARCH" : selectedSubjectKey}
+            onChangeCategory={(key) => {
+              setSelectedSubjectKey(key);
+              setSearchQuery(""); // Clear search query to restore clean category view
+            }}
             questions={filteredQuestions}
             selectedQuestionId={selectedQuestion?.id}
             onSelectQuestion={(q) => {
               setSelectedQuestion(q);
               if (q && q.id !== -1) {
                 setMobileView("detail");
-                // 글로벌 검색 유입 시, 해당 질문에 매핑된 카테고리 탭으로 자동 스위칭
+                // 글로벌 검색 유입 시, 해당 질문에 매핑된 카테고리 탭으로 자동 스위칭 및 검색어 초기화
                 if (searchQuery.trim()) {
                   const targetSubject = q.subject.toLowerCase();
                   let matchedKey = "ALL";
@@ -333,6 +343,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
                   if (matchedKey !== selectedSubjectKey) {
                     setSelectedSubjectKey(matchedKey);
                   }
+                  setSearchQuery(""); // Clear search to restore default category list view
                 }
               }
             }}

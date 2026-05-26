@@ -2,6 +2,7 @@ import React from "react";
 import { BookOpen } from "lucide-react";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import type { Question } from "../../../types";
+import { SUBJECT_MAPS } from "../../../constants/subjects";
 
 interface QuestionListProps {
   selectedCategory: string;
@@ -25,12 +26,14 @@ const getSidebarHeader = (key: string): string => {
     "ARCHITECTURE": "소프트웨어 아키텍처",
     "ALGORITHM":    "자료구조 · 알고리즘",
     "ALL":          "전체 질문 모음",
+    "SEARCH":       "검색 결과",
   };
   return headers[key] || "학습 핸드북";
 };
 
 export const QuestionList: React.FC<QuestionListProps> = ({
   selectedCategory,
+  onChangeCategory,
   questions,
   selectedQuestionId,
   onSelectQuestion,
@@ -58,21 +61,60 @@ export const QuestionList: React.FC<QuestionListProps> = ({
             // Shorten synthetic card title or keep it clean
             const displayName = q.id === -1 ? "개요" : q.title;
 
+            // Find subject map for display badge
+            const targetSubject = q.subject?.toLowerCase();
+            let matchedKey = "";
+            let matchedLabel = "";
+            
+            if (q.id !== -1 && targetSubject) {
+              for (const [key, map] of Object.entries(SUBJECT_MAPS)) {
+                if (map.subjects && map.subjects.includes(targetSubject)) {
+                  matchedKey = key;
+                  matchedLabel = map.label;
+                  break;
+                }
+              }
+            }
+
             return (
-              <button
+              <div
                 key={q.id}
-                onClick={() => onSelectQuestion(q)}
-                className={`text-left px-sm py-[6px] rounded-md text-[13px] transition-all group w-full flex items-center ${
+                className={`flex flex-col gap-xxs p-sm rounded-md transition-all group w-full ${
                   isActive
-                    ? "bg-apple-primary/10 text-apple-primary dark:text-apple-primary-on-dark font-semibold border-l-2 border-apple-primary pl-[10px]"
-                    : "text-gray-500 dark:text-apple-body-muted hover:text-apple-ink dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                    ? "bg-apple-primary/10 border-l-2 border-apple-primary pl-[10px]"
+                    : "hover:bg-black/5 dark:hover:bg-white/5 border-l-2 border-transparent pl-[10px]"
                 }`}
-                title={q.title}
               >
-                <span className="block truncate w-full">
-                  {displayName}
-                </span>
-              </button>
+                {/* Title area (click to select question) */}
+                <button
+                  onClick={() => onSelectQuestion(q)}
+                  className={`text-left text-[13px] font-medium transition-colors w-full focus:outline-none ${
+                    isActive
+                      ? "text-apple-primary dark:text-apple-primary-on-dark font-semibold"
+                      : "text-gray-700 dark:text-apple-body-on-dark hover:text-apple-ink dark:hover:text-white"
+                  }`}
+                  title={q.title}
+                >
+                  <span className="block line-clamp-2 w-full break-all">
+                    {displayName}
+                  </span>
+                </button>
+
+                {/* Category tag badge (visible only when searching or in 'ALL' list) */}
+                {matchedLabel && (selectedCategory === "SEARCH" || selectedCategory === "ALL") && (
+                  <div className="flex justify-start mt-xxs">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onChangeCategory(matchedKey);
+                      }}
+                      className="px-xs py-[2px] text-[10px] font-medium rounded-pill bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-gray-400 dark:text-apple-body-muted/80 hover:text-apple-primary dark:hover:text-apple-primary-on-dark hover:border-apple-primary/30 dark:hover:border-apple-primary-on-dark/30 hover:bg-apple-primary/5 dark:hover:bg-apple-primary-on-dark/5 transition-all select-none"
+                    >
+                      {matchedLabel}
+                    </button>
+                  </div>
+                )}
+              </div>
             );
           })
         ) : (

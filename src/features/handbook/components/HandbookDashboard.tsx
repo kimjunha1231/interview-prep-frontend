@@ -220,15 +220,15 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-white dark:bg-black transition-colors duration-200">
       {/* 1. Docusaurus style dynamic top-nav */}
-      <header className="bg-white/80 dark:bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-ink dark:text-apple-body-on-dark h-[52px] px-lg flex items-center justify-between sticky top-0 z-50 border-b border-black/5 dark:border-white/5 select-none transition-colors duration-200">
-        <div className="flex items-center gap-md">
-          <span className="font-sans font-bold text-sm tracking-tight text-apple-ink dark:text-white select-none whitespace-nowrap">
+      <header className="bg-white/80 dark:bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-ink dark:text-apple-body-on-dark h-[52px] px-lg flex items-center justify-between sticky top-0 z-50 border-b border-black/5 dark:border-white/5 select-none transition-colors duration-200 gap-md">
+        <div className="flex items-center gap-md shrink-0">
+          <span className="font-sans font-bold text-sm tracking-tight text-apple-ink dark:text-white select-none whitespace-nowrap hidden sm:block">
             Interview Handbook
           </span>
         </div>
 
         {/* Categories Menu */}
-        <nav className="flex items-center gap-xs overflow-x-auto max-w-[60%] scrollbar-none" aria-label="Subject navigation">
+        <nav className="flex-1 min-w-0 flex items-center gap-xs overflow-x-auto scrollbar-none" aria-label="Subject navigation">
           {Object.entries(SUBJECT_MAPS).map(([key, map]) => (
             <button
               key={key}
@@ -249,9 +249,9 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
         </nav>
 
         {/* Right Switch Mode & Search */}
-        <div className="flex items-center gap-sm">
+        <div className="flex items-center gap-sm shrink-0">
           {/* Header search bar */}
-          <div className="relative hidden sm:block">
+          <div className="relative hidden md:block">
             <Search className="absolute left-xs top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-apple-body-muted/60" />
             <input
               ref={searchInputRef}
@@ -259,7 +259,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
               placeholder="검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-apple-canvas-parchment dark:bg-apple-surface-black border border-black/10 dark:border-white/10 rounded-md py-[4px] pl-[26px] pr-[38px] text-[12px] text-apple-ink dark:text-white placeholder-gray-400 dark:placeholder-apple-body-muted/50 focus:outline-none focus:border-apple-primary w-[140px] md:w-[180px] transition-all"
+              className="bg-apple-canvas-parchment dark:bg-apple-surface-black border border-black/10 dark:border-white/10 rounded-md py-[4px] pl-[26px] pr-[38px] text-[12px] text-apple-ink dark:text-white placeholder-gray-400 dark:placeholder-apple-body-muted/50 focus:outline-none focus:border-apple-primary w-[100px] lg:w-[150px] transition-all"
             />
             <span className="absolute right-xs top-1/2 -translate-y-1/2 text-[9px] font-mono text-gray-400 dark:text-apple-body-muted/60 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 px-xs py-[1px] rounded pointer-events-none select-none">
               ⌘K
@@ -267,7 +267,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
           </div>
 
           {/* iOS style Toggle Switch */}
-          <div className="flex items-center gap-xs select-none mr-xxs">
+          <div className="flex items-center gap-xs select-none">
             <Sun className="w-3.5 h-3.5 text-amber-500 dark:text-gray-600" />
             <button
               onClick={onToggleTheme}
@@ -292,9 +292,9 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
             onClick={onSwitchMode}
             variant="secondary"
             size="sm"
-            className="rounded-pill border border-black/10 dark:border-white/10 text-[11px] font-semibold flex items-center gap-xxs px-sm py-[4px] bg-white dark:bg-apple-surface-tile-2 hover:bg-gray-100 dark:hover:bg-white/10 text-apple-ink dark:text-apple-body-on-dark transition-colors duration-200"
+            className="rounded-pill border border-black/10 dark:border-white/10 text-[11px] font-semibold flex items-center gap-xxs px-sm py-[4px] bg-white dark:bg-apple-surface-tile-2 hover:bg-gray-100 dark:hover:bg-white/10 text-apple-ink dark:text-apple-body-on-dark transition-colors duration-200 whitespace-nowrap shrink-0"
           >
-            <UserCheck className="w-3 h-3 text-apple-primary dark:text-apple-primary-on-dark" />
+            <UserCheck className="w-3 h-3 text-apple-primary dark:text-apple-primary-on-dark shrink-0" />
             <span>모의 면접 시작</span>
           </Button>
         </div>

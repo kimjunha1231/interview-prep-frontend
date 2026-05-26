@@ -92,7 +92,7 @@ export const InterviewSetup: React.FC<InterviewSetupProps> = ({
     } else if (cat === "FE") {
       onChangeSubjects(["JAVASCRIPT", "REACT", "HTML_CSS"]);
     } else if (cat === "BE") {
-      onChangeSubjects(["BACKEND", "DATABASE", "NETWORK", "ARCHITECTURE"]);
+      onChangeSubjects(["JAVA", "SPRING", "DEVOPS", "DATABASE", "NETWORK", "ARCHITECTURE"]);
     } else if (cat === "PORTFOLIO") {
       onChangeSubjects([]);
     }

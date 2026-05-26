@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import type { Question } from "../../../types";
 
@@ -40,15 +40,12 @@ export const QuestionList: React.FC<QuestionListProps> = ({
 
   return (
     <section className="w-full md:w-[300px] lg:w-[320px] border-r border-black/5 dark:border-white/5 py-xl px-md md:pr-md flex flex-col gap-md select-none shrink-0 overflow-y-auto max-h-[85vh]">
-      {/* Sidebar Header Category Selector Dropdown (Aesthetic Only) */}
-      <div className="flex items-center justify-between px-xs py-xxs rounded-md border border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-colors">
-        <div className="flex items-center gap-xs">
-          <BookOpen className="w-3.5 h-3.5 text-apple-primary dark:text-apple-primary-on-dark" />
-          <span className="font-display font-semibold text-[13px] text-apple-ink dark:text-white">
-            {sidebarHeader}
-          </span>
-        </div>
-        <ChevronDown className="w-3.5 h-3.5 text-gray-500 dark:text-apple-body-muted" />
+      {/* Sidebar Header Category Title */}
+      <div className="flex items-center gap-xs px-xs pb-xxs select-none">
+        <BookOpen className="w-4 h-4 text-apple-primary dark:text-apple-primary-on-dark shrink-0" />
+        <h3 className="font-display font-bold text-[14px] text-apple-ink dark:text-white">
+          {sidebarHeader}
+        </h3>
       </div>
       
       {/* Questions list container */}

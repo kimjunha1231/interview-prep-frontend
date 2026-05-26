@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://interview-handbook.co.kr/sitemap.xml
+Sitemap: https://interview-prep-handbook-1xr5.vercel.app/sitemap.xml

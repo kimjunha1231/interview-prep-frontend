@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { BookOpen } from "lucide-react";
 import { Skeleton } from "../../../components/ui/Skeleton";
 import type { Question } from "../../../types";
@@ -40,9 +40,21 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   loading,
 }) => {
   const sidebarHeader = getSidebarHeader(selectedCategory);
+  
+  const sectionRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (sectionRef.current) {
+      sectionRef.current.scrollTop = 0;
+    }
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [selectedCategory]);
 
   return (
-    <section className="w-full md:w-[300px] lg:w-[320px] border-r border-black/5 dark:border-white/5 py-xl px-md md:pr-md flex flex-col gap-md select-none shrink-0 overflow-y-auto max-h-[85vh]">
+    <section ref={sectionRef} className="w-full md:w-[300px] lg:w-[320px] border-r border-black/5 dark:border-white/5 py-xl px-md md:pr-md flex flex-col gap-md select-none shrink-0 overflow-y-auto max-h-[85vh]">
       {/* Sidebar Header Category Title */}
       <div className="flex items-center gap-xs px-xs pb-xxs select-none">
         <BookOpen className="w-4 h-4 text-apple-primary dark:text-apple-primary-on-dark shrink-0" />
@@ -52,7 +64,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
       </div>
       
       {/* Questions list container */}
-      <div className="flex flex-col gap-xxs overflow-y-auto pr-xs">
+      <div ref={containerRef} className="flex flex-col gap-xxs overflow-y-auto pr-xs">
         {loading ? (
           <Skeleton count={8} className="h-[36px] mb-xxs bg-black/5 dark:bg-white/5" />
         ) : questions.length > 0 ? (

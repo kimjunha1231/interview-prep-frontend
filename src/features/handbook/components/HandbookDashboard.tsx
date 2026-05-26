@@ -24,6 +24,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
   const [mobileView, setMobileView] = useState<"list" | "detail">("list");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mainContentRef = useRef<HTMLElement>(null);
 
   // Search input focus hotkey (Cmd+K / Ctrl+K)
   useEffect(() => {
@@ -155,6 +156,13 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
       }
     }
   }, [selectedSubjectKey, questionsData, loadingQuestions]);
+
+  // Scroll to top of main panel when selected question changes
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTop = 0;
+    }
+  }, [selectedQuestion]);
 
   // Client-side filtering logic
   const filteredQuestions = questionsData.filter(q => {
@@ -307,7 +315,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
         </div>
 
         {/* Column B: Center content (Detail Panel) */}
-        <main className={`flex-1 px-lg py-xl border-r border-black/5 dark:border-white/5 overflow-y-auto max-h-[85vh] transition-colors duration-200 ${mobileView === "list" ? "hidden md:block" : "block"}`}>
+        <main ref={mainContentRef} className={`flex-1 px-lg py-xl border-r border-black/5 dark:border-white/5 overflow-y-auto max-h-[85vh] transition-colors duration-200 ${mobileView === "list" ? "hidden md:block" : "block"}`}>
           {/* Mobile Back to List Button */}
           {mobileView === "detail" && (
             <div className="md:hidden mb-md flex items-center">

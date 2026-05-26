@@ -131,6 +131,18 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
     gcTime: Infinity,
   });
 
+  // Load ALL questions for background cache and global search
+  const { data: allQuestions = [] } = useQuery<Question[]>({
+    queryKey: ["questions", "ALL"],
+    queryFn: async () => {
+      const results = await apiService.getQuestions(undefined, undefined);
+      const overviewQ = getSyntheticOverview("ALL");
+      return [overviewQ, ...results];
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
   // Keep selectedQuestion in sync with category switch or custom query param load
   useEffect(() => {
     if (loadingQuestions || questionsData.length === 0) return;
@@ -165,7 +177,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
   }, [selectedQuestion]);
 
   // Client-side filtering logic
-  const filteredQuestions = questionsData.filter(q => {
+  const filteredQuestions = (searchQuery.trim() ? allQuestions : questionsData).filter(q => {
     if (q.id === -1) return true; // Keep synthetic overview always
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
@@ -308,6 +320,20 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
               setSelectedQuestion(q);
               if (q && q.id !== -1) {
                 setMobileView("detail");
+                // 글로벌 검색 유입 시, 해당 질문에 매핑된 카테고리 탭으로 자동 스위칭
+                if (searchQuery.trim()) {
+                  const targetSubject = q.subject.toLowerCase();
+                  let matchedKey = "ALL";
+                  for (const [key, map] of Object.entries(SUBJECT_MAPS)) {
+                    if (map.subjects && map.subjects.includes(targetSubject)) {
+                      matchedKey = key;
+                      break;
+                    }
+                  }
+                  if (matchedKey !== selectedSubjectKey) {
+                    setSelectedSubjectKey(matchedKey);
+                  }
+                }
               }
             }}
             loading={loadingQuestions}

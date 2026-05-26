@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ArrowRight, UploadCloud, FileText, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
+import { SUBJECT_MAPS } from "../../../constants/subjects";
 import { extractTextFromPdf } from "../../../utils/pdfParser";
 
 interface InterviewSetupProps {
@@ -16,17 +17,10 @@ interface InterviewSetupProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-const SUBJECT_ITEMS = [
-  { key: "JAVASCRIPT", label: "JavaScript" },
-  { key: "REACT", label: "React" },
-  { key: "HTML_CSS", label: "HTML/CSS" },
-  { key: "NETWORK", label: "네트워크" },
-  { key: "OS", label: "OS·시스템" },
-  { key: "DATABASE", label: "데이터베이스" },
-  { key: "BACKEND", label: "백엔드" },
-  { key: "ARCHITECTURE", label: "아키텍처" },
-  { key: "ALGORITHM", label: "알고리즘" },
-];
+// SUBJECT_MAPS에서 HOME, ALL을 제외한 실제 과목 항목만 추출하여 체크박스 그룹 생성
+const SUBJECT_ITEMS = Object.entries(SUBJECT_MAPS)
+  .filter(([key, map]) => key !== "HOME" && key !== "ALL" && map.subjects)
+  .map(([key, map]) => ({ key, label: map.label }));
 
 export const InterviewSetup: React.FC<InterviewSetupProps> = ({
   interviewCategory,

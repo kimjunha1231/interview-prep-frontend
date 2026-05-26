@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DOMAIN = 'https://interview-handbook.co.kr';
+const DOMAIN = 'https://interview-prep-handbook-1xr5.vercel.app';
 
 async function generateSitemap() {
   try {

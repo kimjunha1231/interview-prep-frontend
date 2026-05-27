@@ -147,12 +147,12 @@ export const NewsletterSubscription: React.FC = () => {
           </div>
         </form>
         {subscribed && (
-          <p className="text-green-500 text-[10px] font-mono mt-xxs animate-pulse">
+          <p className="text-green-500 text-[10px] font-mono mt-xxs animate-fade-in">
             ✓ 구독이 완료되었습니다!
           </p>
         )}
         {unsubscribed && (
-          <p className="text-amber-600 dark:text-yellow-500 text-[10px] font-mono mt-xxs animate-pulse">
+          <p className="text-amber-600 dark:text-yellow-500 text-[10px] font-mono mt-xxs animate-fade-in">
             ✓ 구독이 취소되었습니다.
           </p>
         )}
@@ -168,7 +168,7 @@ export const NewsletterSubscription: React.FC = () => {
         <span className="font-display font-semibold text-[11px] tracking-wider uppercase text-apple-primary dark:text-apple-primary-on-dark flex items-center justify-between">
           <span>질문 및 기능 제안</span>
           {emailCopied && (
-            <span className="text-[10px] text-green-500 font-mono animate-pulse lowercase">
+            <span className="text-[10px] text-green-500 font-mono animate-fade-in lowercase">
               copied!
             </span>
           )}

@@ -207,7 +207,7 @@ export const InterviewDashboard: React.FC = () => {
     <div className="flex-1 flex items-center justify-center max-w-[960px] w-full mx-auto px-lg py-xl">
       <SEO title="AI 실시간 모의 면접" />
 
-      <div className="w-full bg-white dark:bg-apple-surface-tile-1/20 border border-black/5 dark:border-white/5 rounded-lg p-lg md:p-xl shadow-md dark:shadow-lg relative overflow-hidden transition-colors duration-200">
+      <div className="w-full bg-white dark:bg-apple-surface-tile-1/20 border border-black/5 dark:border-white/5 rounded-lg p-lg md:p-xl relative overflow-hidden transition-colors duration-200">
         
         {/* --- 1. Setup Form --- */}
         {interviewStep === "setup" && (

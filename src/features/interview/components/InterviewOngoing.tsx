@@ -92,7 +92,7 @@ export const InterviewOngoing: React.FC<InterviewOngoingProps> = ({
             <button
               type="button"
               onClick={stopRecording}
-              className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all duration-300 ease-out-expo shadow-[0_0_15px_rgba(239,68,68,0.4)] active:scale-95"
+              className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all duration-300 ease-out-expo shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:scale-95"
               aria-label="녹음 중지"
             >
               <Square className="w-5 h-5 fill-white" />
@@ -102,7 +102,7 @@ export const InterviewOngoing: React.FC<InterviewOngoingProps> = ({
               type="button"
               onClick={startRecording}
               disabled={isTranscribing || isGrading}
-              className="w-14 h-14 rounded-full bg-apple-primary hover:bg-apple-primary-focus disabled:bg-apple-surface-tile-1 text-white flex items-center justify-center transition-all duration-300 ease-out-expo shadow-[0_4px_12px_rgba(0,102,204,0.3)] active:scale-95 disabled:scale-100 disabled:opacity-50"
+              className="w-14 h-14 rounded-full bg-apple-primary hover:bg-apple-primary-focus disabled:bg-apple-surface-tile-1 text-white flex items-center justify-center transition-all duration-300 ease-out-expo shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:scale-95 disabled:scale-100 disabled:opacity-50"
               aria-label="음성 녹음 시작"
             >
               <Mic className="w-6 h-6" />

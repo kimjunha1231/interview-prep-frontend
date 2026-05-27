@@ -4,97 +4,7 @@ import remarkGfm from "remark-gfm";
 import { Sparkles, Award, RotateCcw, ArrowRight } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import type { InterviewHistoryResponse, InterviewSessionResponse } from "../../../types";
-
-function normalizeMarkdown(text: string): string {
-  if (!text) return "";
-  const normalized = text
-    .replace(/\*\*\u2018/g, "**'")
-    .replace(/\u2019\*\*/g, "'**")
-    .replace(/\*\*\u201C/g, '**"')
-    .replace(/\u201D\*\*/g, '"**');
-
-  return normalized.replace(/([\)\].'\",;:!?])\*\*([가-힣a-zA-Z0-9])/g, "$1\u200B**$2");
-}
-
-const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
-  pre: ({ children }) => (
-    <pre className="bg-[#0d1117] border border-black/10 dark:border-white/10 rounded-md px-md py-sm overflow-x-auto my-xs">
-      {children}
-    </pre>
-  ),
-  code: ({ className, children }) => {
-    const isBlock = Boolean(className);
-    if (isBlock) {
-      return (
-        <code className="font-mono text-[13px] text-[#e6edf3] leading-relaxed whitespace-pre">
-          {children}
-        </code>
-      );
-    }
-    return (
-      <code className="font-mono text-[13px] bg-apple-primary/5 text-apple-primary dark:bg-apple-surface-tile-1/60 dark:text-apple-primary-on-dark px-[5px] py-[1px] rounded-xs border border-black/5 dark:border-white/5 align-middle">
-        {children}
-      </code>
-    );
-  },
-  h1: ({ children }) => (
-    <h2 className="text-[20px] font-semibold font-display text-apple-ink dark:text-white mt-lg mb-xs leading-snug tracking-tight">
-      {children}
-    </h2>
-  ),
-  h2: ({ children }) => (
-    <h3 className="text-[17px] font-semibold font-display text-apple-ink dark:text-white mt-md mb-xxs leading-snug tracking-tight border-b border-black/5 dark:border-white/5 pb-xxs">
-      {children}
-    </h3>
-  ),
-  h3: ({ children }) => (
-    <h4 className="text-[15px] font-semibold font-display text-apple-primary dark:text-apple-primary-on-dark mt-sm mb-xxs leading-snug">
-      {children}
-    </h4>
-  ),
-  p: ({ children }) => (
-    <p className="text-[15px] text-apple-ink dark:text-apple-body-on-dark leading-[1.75] font-body mb-xs">
-      {children}
-    </p>
-  ),
-  ul: ({ children }) => (
-    <ul className="list-disc list-outside flex flex-col gap-[2px] mb-xs pl-lg">
-      {children}
-    </ul>
-  ),
-  ol: ({ children }) => (
-    <ol className="list-decimal list-outside flex flex-col gap-[2px] mb-xs pl-lg">
-      {children}
-    </ol>
-  ),
-  li: ({ children }) => (
-    <li className="text-[14.5px] text-gray-500 dark:text-apple-body-muted leading-[1.75] font-body marker:text-apple-primary dark:marker:text-apple-primary-on-dark">
-      {children}
-    </li>
-  ),
-  strong: ({ children }) => (
-    <strong className="font-semibold text-apple-ink dark:text-white">{children}</strong>
-  ),
-  em: ({ children }) => (
-    <em className="italic text-gray-500 dark:text-apple-body-muted">{children}</em>
-  ),
-  blockquote: ({ children }) => (
-    <blockquote className="border-l-[3px] border-apple-primary/40 pl-md bg-black/5 dark:bg-apple-surface-tile-1/20 rounded-r-md py-xs my-xs">
-      {children}
-    </blockquote>
-  ),
-  hr: () => <hr className="border-black/5 dark:border-white/5 my-md" />,
-  a: ({ href, children }) => (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-apple-primary dark:text-apple-primary-on-dark underline underline-offset-2 hover:opacity-80 transition-opacity"
-    >
-      {children}
-    </a>
-  ),
-};
+import { normalizeMarkdown, mdComponents } from "../../../utils/markdown";
 
 
 interface InterviewFeedbackProps {
@@ -118,14 +28,14 @@ export const InterviewFeedback: React.FC<InterviewFeedbackProps> = ({
     <div className="flex flex-col gap-lg">
       <header className="border-b border-black/5 dark:border-white/5 pb-md select-none">
         <h2 className="text-[20px] font-semibold text-apple-ink dark:text-white leading-tight font-display tracking-tight flex items-center gap-xs">
-          <Sparkles className="w-5 h-5 text-apple-primary dark:text-apple-primary-on-dark animate-pulse" />
+          <Sparkles className="w-5 h-5 text-apple-primary dark:text-apple-primary-on-dark" />
           <span>시니어 면접관의 실시간 피드백</span>
         </h2>
       </header>
 
       {/* Score and Question Info */}
       <div className="flex items-center gap-lg bg-apple-canvas-parchment dark:bg-apple-surface-black/30 border border-black/5 dark:border-white/5 p-lg rounded-lg select-none">
-        <div className="relative w-20 h-20 rounded-full border-4 border-apple-primary/10 flex flex-col items-center justify-center bg-black/5 dark:bg-apple-surface-black/50 shadow-sm dark:shadow-md">
+        <div className="relative w-20 h-20 rounded-full border-4 border-apple-primary/10 flex flex-col items-center justify-center bg-black/5 dark:bg-apple-surface-black/50">
           <Award className="w-4 h-4 text-apple-primary dark:text-apple-primary-on-dark absolute top-2" />
           <span className="text-[20px] font-semibold font-display text-apple-ink dark:text-white mt-xs">
             {gradingResult.score}
@@ -142,14 +52,17 @@ export const InterviewFeedback: React.FC<InterviewFeedbackProps> = ({
             {currentQuestion?.title}
           </p>
           <div className="flex gap-[3px] mt-xs">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span
-                key={i}
-                className={`w-1 h-1 rounded-full ${
-                  i < 4 ? "bg-green-500 shadow-[0_0_3px_#22c55e]" : "bg-black/10 dark:bg-white/10"
-                }`}
-              />
-            ))}
+            {Array.from({ length: 5 }).map((_, i) => {
+              const dotsCount = gradingResult.score > 0 ? Math.max(1, Math.round(gradingResult.score / 20)) : 0;
+              return (
+                <span
+                  key={i}
+                  className={`w-1 h-1 rounded-full ${
+                    i < dotsCount ? "bg-green-500" : "bg-black/10 dark:bg-white/10"
+                  }`}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

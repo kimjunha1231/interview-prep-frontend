@@ -259,8 +259,12 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
           {/* Header search bar */}
           <div className="relative hidden md:block">
             <Search className="absolute left-xs top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-apple-body-muted/60" />
+            <label htmlFor="handbook-search-input" className="sr-only">
+              질문 검색
+            </label>
             <input
               ref={searchInputRef}
+              id="handbook-search-input"
               type="text"
               placeholder="검색..."
               value={searchQuery}
@@ -282,6 +286,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
               }`}
               role="switch"
               aria-checked={theme === "dark"}
+              aria-label="다크 모드 토글"
               title={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
             >
               <div

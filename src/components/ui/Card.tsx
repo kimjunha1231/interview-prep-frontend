@@ -13,9 +13,9 @@ export const Card: React.FC<CardProps> = ({
   className = "",
   onClick,
 }) => {
-  const baseClass = "bg-apple-surface-tile-1/30 border border-white/5 rounded-lg p-md md:p-lg transition-all duration-300 ease-out-expo";
+  const baseClass = "bg-white dark:bg-apple-surface-tile-1/30 border border-black/5 dark:border-white/5 rounded-lg p-md md:p-lg transition-all duration-300 ease-out-expo";
   const hoverClass = hoverable 
-    ? "hover:bg-apple-surface-tile-1/50 hover:border-white/15 cursor-pointer hover:scale-[1.002]" 
+    ? "hover:bg-black/5 dark:hover:bg-apple-surface-tile-1/50 hover:border-black/10 dark:hover:border-white/15 cursor-pointer hover:scale-[1.002]" 
     : "";
 
   return (

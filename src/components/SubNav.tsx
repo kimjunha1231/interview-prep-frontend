@@ -30,7 +30,7 @@ export const SubNav: React.FC<SubNavProps> = ({
           onClick={() => onChangeMode("handbook")}
           className={`flex items-center gap-xs px-md py-[6px] rounded-pill text-[12px] font-medium transition-all duration-300 ease-out-expo ${
             activeMode === "handbook"
-              ? "bg-white dark:bg-apple-surface-tile-2 text-apple-ink dark:text-white font-semibold shadow-sm border border-black/5 dark:border-white/5"
+              ? "bg-white dark:bg-apple-surface-tile-2 text-apple-ink dark:text-white font-semibold border border-black/5 dark:border-white/5"
               : "text-gray-500 dark:text-apple-body-muted hover:text-apple-ink dark:hover:text-white"
           }`}
           aria-pressed={activeMode === "handbook"}
@@ -43,7 +43,7 @@ export const SubNav: React.FC<SubNavProps> = ({
           onClick={() => onChangeMode("interview")}
           className={`flex items-center gap-xs px-md py-[6px] rounded-pill text-[12px] font-medium transition-all duration-300 ease-out-expo ${
             activeMode === "interview"
-              ? "bg-apple-primary text-white font-semibold shadow-[0_0_10px_rgba(0,102,204,0.3)]"
+              ? "bg-apple-primary text-white font-semibold border border-black/5 dark:border-white/5"
               : "text-gray-500 dark:text-apple-body-muted hover:text-apple-ink dark:hover:text-white"
           }`}
           aria-pressed={activeMode === "interview"}

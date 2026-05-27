@@ -14,7 +14,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className={`animate-apple-pulse rounded-lg border border-white/5 bg-apple-surface-tile-1/10 ${className}`}
+          className={`animate-apple-pulse rounded-lg border border-black/5 dark:border-white/5 bg-black/5 dark:bg-apple-surface-tile-1/10 ${className}`}
           role="status"
           aria-live="polite"
         />

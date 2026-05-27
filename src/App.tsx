@@ -32,27 +32,24 @@ function App() {
   return (
     <div className="min-h-screen bg-white dark:bg-black text-apple-ink dark:text-white flex flex-col font-sans antialiased transition-colors duration-200 selection:bg-apple-primary/30 selection:text-white">
 
-      {/* 52px sub navigation with mode toggle - only shown for interview mode */}
-      {activeMode === "interview" && (
-        <SubNav 
-          activeMode={activeMode} 
-          onChangeMode={setActiveMode} 
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
-      )}
+      {/* 52px main navigation header with mode toggle (persistent across pages) */}
+      <SubNav 
+        activeMode={activeMode} 
+        onChangeMode={setActiveMode} 
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       <main className="flex-1 flex flex-col">
-        {/* Switch Mode Dashboards */}
-        {activeMode === "handbook" ? (
+        {/* Switch Mode Dashboards via visibility to preserve state, scroll position and ongoing sessions */}
+        <div className={`flex-1 flex flex-col ${activeMode === "handbook" ? "" : "hidden"}`}>
           <HandbookDashboard 
             onSwitchMode={() => setActiveMode("interview")} 
-            theme={theme}
-            onToggleTheme={toggleTheme}
           />
-        ) : (
+        </div>
+        <div className={`flex-1 flex flex-col ${activeMode === "interview" ? "" : "hidden"}`}>
           <InterviewDashboard />
-        )}
+        </div>
       </main>
     </div>
   );

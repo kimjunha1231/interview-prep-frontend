@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, UserCheck, Sun, Moon } from "lucide-react";
+import { Search } from "lucide-react";
 import { QuestionList } from "./QuestionList";
 import { QuestionDetail } from "./QuestionDetail";
 import { NewsletterSubscription } from "./NewsletterSubscription";
@@ -8,16 +8,13 @@ import { apiService } from "../../../services/api";
 import { SUBJECT_MAPS } from "../../../constants/subjects";
 import { getSyntheticOverview } from "../../../constants/overviews";
 import type { Question } from "../../../types";
-import { Button } from "../../../components/ui/Button";
 import { SEO } from "../../../components/SEO";
 
 interface HandbookDashboardProps {
   onSwitchMode: () => void;
-  theme: "light" | "dark";
-  onToggleTheme: () => void;
 }
 
-export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode, theme, onToggleTheme }) => {
+export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode }) => {
   const [selectedSubjectKey, setSelectedSubjectKey] = useState<string>("JAVASCRIPT");
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const initialQuestionRef = useRef<Question | null>(null);
@@ -79,10 +76,6 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
   const { data: questionsData = [], isLoading: loadingQuestions } = useQuery<Question[]>({
     queryKey: ["questions", selectedSubjectKey],
     queryFn: async () => {
-      if (selectedSubjectKey === "HOME") {
-        return [getSyntheticOverview("HOME")];
-      }
-
       const mapping = SUBJECT_MAPS[selectedSubjectKey];
       const fetchPromises: Promise<Question[]>[] = [];
       
@@ -225,16 +218,10 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
         description={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.summary : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 관련 기술 면접 핵심 개념 학습 및 대표 질문 리스트를 확인해보세요.` : undefined)}
         question={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion : null}
       />
-      {/* 1. Docusaurus style dynamic top-nav */}
-      <header className="bg-white/80 dark:bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-ink dark:text-apple-body-on-dark h-[52px] px-lg flex items-center justify-between sticky top-0 z-50 border-b border-black/5 dark:border-white/5 select-none transition-colors duration-200 gap-md">
-        <div className="flex items-center gap-md shrink-0">
-          <span className="font-sans font-bold text-sm tracking-tight text-apple-ink dark:text-white select-none whitespace-nowrap hidden sm:block">
-            Interview Handbook
-          </span>
-        </div>
-
+      {/* 1. Dynamic category sub-nav header */}
+      <header className="bg-white/80 dark:bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-ink dark:text-apple-body-on-dark h-[46px] px-lg flex items-center justify-between sticky top-[52px] z-40 border-b border-black/5 dark:border-white/5 select-none transition-colors duration-200 gap-md">
         {/* Categories Menu */}
-        <nav className="flex-1 min-w-0 flex items-center gap-xs overflow-x-auto scrollbar-none" aria-label="Subject navigation">
+        <nav className="flex-1 min-w-0 flex items-center justify-start md:justify-center gap-xs overflow-x-auto scrollbar-none" aria-label="Subject navigation">
           {Object.entries(SUBJECT_MAPS).map(([key, map]) => (
             <button
               key={key}
@@ -254,7 +241,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
           ))}
         </nav>
 
-        {/* Right Switch Mode & Search */}
+        {/* Right Search */}
         <div className="flex items-center gap-sm shrink-0">
           {/* Header search bar */}
           <div className="relative hidden md:block">
@@ -275,44 +262,11 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
               ⌘K
             </span>
           </div>
-
-          {/* iOS style Toggle Switch */}
-          <div className="flex items-center gap-xs select-none">
-            <Sun className="w-3.5 h-3.5 text-amber-500 dark:text-gray-600" />
-            <button
-              onClick={onToggleTheme}
-              className={`w-9 h-5 rounded-full p-[2px] transition-colors duration-200 focus:outline-none flex items-center ${
-                theme === "dark" ? "bg-apple-primary" : "bg-black/10"
-              }`}
-              role="switch"
-              aria-checked={theme === "dark"}
-              aria-label="다크 모드 토글"
-              title={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
-            >
-              <div
-                className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out-expo ${
-                  theme === "dark" ? "translate-x-4" : "translate-x-0"
-                }`}
-              />
-            </button>
-            <Moon className="w-3.5 h-3.5 text-gray-400 dark:text-amber-300 fill-transparent dark:fill-amber-300/20" />
-          </div>
-
-          <Button
-            type="button"
-            onClick={onSwitchMode}
-            variant="secondary"
-            size="sm"
-            className="rounded-pill border border-black/10 dark:border-white/10 text-[11px] font-semibold flex items-center gap-xxs px-sm py-[4px] bg-white dark:bg-apple-surface-tile-2 hover:bg-gray-100 dark:hover:bg-white/10 text-apple-ink dark:text-apple-body-on-dark transition-colors duration-200 whitespace-nowrap shrink-0"
-          >
-            <UserCheck className="w-3 h-3 text-apple-primary dark:text-apple-primary-on-dark shrink-0" />
-            <span>모의 면접 시작</span>
-          </Button>
         </div>
       </header>
 
       {/* 2. Three-column layout */}
-      <div className="flex-1 flex w-full max-w-[1440px] mx-auto min-h-[calc(100vh-96px)]">
+      <div className="flex-1 flex w-full max-w-[1440px] mx-auto min-h-[calc(100vh-142px)]">
         {/* Mobile search bar */}
         <div className={`p-md sm:hidden border-b border-black/5 dark:border-white/5 bg-apple-canvas-parchment dark:bg-apple-surface-black/30 w-full ${mobileView === "detail" ? "hidden" : "block"}`}>
           <div className="relative">
@@ -363,7 +317,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
         </div>
 
         {/* Column B: Center content (Detail Panel) */}
-        <main ref={mainContentRef} className={`flex-1 px-lg py-xl border-r border-black/5 dark:border-white/5 overflow-y-auto max-h-[85vh] transition-colors duration-200 ${mobileView === "list" ? "hidden md:block" : "block"}`}>
+        <main ref={mainContentRef} className={`flex-1 px-lg py-xl border-r border-black/5 dark:border-white/5 overflow-y-auto max-h-[calc(100vh-120px)] transition-colors duration-200 ${mobileView === "list" ? "hidden md:block" : "block"}`}>
           {/* Mobile Back to List Button */}
           {mobileView === "detail" && (
             <div className="md:hidden mb-md flex items-center">
@@ -375,12 +329,15 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
               </button>
             </div>
           )}
-          <QuestionDetail question={selectedQuestion} />
+          <QuestionDetail 
+            question={selectedQuestion} 
+            onSwitchMode={onSwitchMode}
+          />
         </main>
 
         {/* Column C: Right Sidebar (Table of Contents & Daily Newsletter) */}
         <aside className="hidden lg:block w-[18%] p-lg select-none">
-          <div className="sticky top-[72px] flex flex-col gap-lg">
+          <div className="sticky top-[118px] flex flex-col gap-lg">
             {tocItems.length > 0 && (
               <nav className="flex flex-col gap-sm" aria-label="Table of contents">
                 <span className="font-display font-semibold text-[11px] tracking-wider uppercase text-gray-400 dark:text-apple-body-muted">

@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { BookOpen, ExternalLink, ChevronDown, HelpCircle } from "lucide-react";
+import { BookOpen, ExternalLink, ChevronDown, HelpCircle, Sparkles } from "lucide-react";
 import type { Question } from "../../../types";
 import { normalizeMarkdown, mdComponents, caveatsComponents } from "../../../utils/markdown";
 
 interface QuestionDetailProps {
   question: Question | null;
+  onSwitchMode?: () => void;
 }
 
-export const QuestionDetail: React.FC<QuestionDetailProps> = ({ question }) => {
+export const QuestionDetail: React.FC<QuestionDetailProps> = ({ 
+  question,
+  onSwitchMode
+}) => {
   const [openHints, setOpenHints] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
@@ -29,10 +33,38 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({ question }) => {
     );
   }
 
+
   const displayCategory = question.category === "OVERVIEW" ? "안내" : question.category;
 
   return (
     <article className="flex-1 flex flex-col gap-lg max-w-[800px] mx-auto w-full">
+      {/* 과목 개요 페이지용 와이드 히어로 카드 (Interactive Category Hero Card) */}
+      {question.id === -1 && onSwitchMode && (
+        <div className="w-full bg-[#0066cc]/5 dark:bg-[#2997ff]/5 border border-[#0066cc]/10 dark:border-[#2997ff]/10 rounded-lg p-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-xs relative overflow-hidden select-none animate-fade-in">
+          <div className="absolute -right-16 -top-16 w-32 h-32 bg-apple-primary/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="flex flex-col gap-xxs max-w-[500px]">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-apple-primary dark:text-apple-primary-on-dark flex items-center gap-xxs">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>실전 트레이닝 (AI Interview)</span>
+            </span>
+            <h4 className="text-[14px] font-bold text-apple-ink dark:text-white mt-xxs">
+              {question.title.replace(" 개요", "")} AI 모의 면접 준비 완료
+            </h4>
+            <p className="text-[12px] text-gray-500 dark:text-apple-body-muted leading-relaxed mt-xxs">
+              개념을 다 익히셨나요? 1:1 대화식 AI 모의 면접으로 실무 역량을 즉시 테스트해 보세요.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onSwitchMode}
+            className="px-md py-xs bg-[#0066cc] hover:bg-[#0071e3] text-white text-[12px] font-bold rounded-md transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shrink-0 flex items-center gap-xxs"
+          >
+            <span>모의 면접 바로가기</span>
+            <span>→</span>
+          </button>
+        </div>
+      )}
+
       {/* Topic badge + title */}
       <header className="flex flex-col gap-xs border-b border-black/5 dark:border-white/5 pb-md">
         <div className="flex items-center gap-xs">

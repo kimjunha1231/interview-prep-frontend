@@ -56,7 +56,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   }, [selectedCategory]);
 
   return (
-    <section ref={sectionRef} className="w-full md:w-[300px] lg:w-[320px] border-r border-black/5 dark:border-white/5 py-xl px-md md:pr-md flex flex-col gap-md select-none shrink-0 overflow-y-auto max-h-[85vh]">
+    <section ref={sectionRef} className="w-full md:w-[300px] lg:w-[320px] border-r border-black/5 dark:border-white/5 py-xl px-md md:pr-md flex flex-col gap-md select-none shrink-0 overflow-y-auto max-h-[calc(100vh-120px)]">
       {/* Sidebar Header Category Title */}
       <div className="flex items-center gap-xs px-xs pb-xxs select-none">
         <BookOpen className="w-4 h-4 text-apple-primary dark:text-apple-primary-on-dark shrink-0" />

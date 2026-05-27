@@ -5,12 +5,6 @@ import type { Question } from "../types";
  * HandbookDashboard.tsx에서 분리하여 컴포넌트 가독성을 높입니다.
  */
 const OVERVIEWS: Record<string, { title: string; summary: string; explanation: string; caveats: string }> = {
-  HOME: {
-    title: "Handbooks 개요",
-    summary: "Interview Handbook 개념 학습 안내 가이드",
-    explanation: "Interview Handbook 개념 학습 핸드북에 오신 것을 환영합니다!\n\n본 핸드북은 **JavaScript, React, 네트워크, OS, 데이터베이스, 백엔드(Java/Spring), 아키텍처, 알고리즘** 등 400개 이상의 기술 면접 문항을 마크다운 기반 개발 문서 형식으로 명쾌하게 해설한 학습실입니다.\n\n상단의 카테고리 네비게이션을 통해 원하는 과목으로 즉시 이동하여 질문 목록을 탐색하고 개별 핵심 요약, 상세 설명, 그리고 면접 시 실수하기 쉬운 주의 사항을 미리 숙지해 보세요.",
-    caveats: "본 개념 학습실에 기재된 모범 답안들은 모의 면접(Mock Interview) 세션에서 AI 면접관이 채점 기준을 산출할 때의 뼈대로 적용됩니다.\n\n암기식 대답을 지양하고, 원리 이해 및 실제 실무 트레이드오프 경험을 곁들여 나만의 언어로 정리하는 훈련을 권장합니다."
-  },
   JAVASCRIPT: {
     title: "JavaScript / TypeScript 개요",
     summary: "자바스크립트(JavaScript)의 핵심 원리와 TypeScript 타입 시스템 학습 가이드",

@@ -9,7 +9,7 @@ import { InterviewReport } from "./InterviewReport";
 import { getDbSubjectsForKey } from "../../../constants/subjects";
 import type { InterviewSessionResponse, InterviewHistoryResponse } from "../../../types";
 
-export const InterviewDashboard: React.FC = () => {
+export const InterviewDashboard: React.FC<{ isActive?: boolean }> = ({ isActive }) => {
   const [interviewStep, setInterviewStep] = useState<"setup" | "ongoing" | "feedback" | "report">("setup");
   const [isStarting, setIsStarting] = useState<boolean>(false);
   const [interviewCategory, setInterviewCategory] = useState<string>("CS");
@@ -205,7 +205,7 @@ export const InterviewDashboard: React.FC = () => {
 
   return (
     <div className="flex-1 flex w-full max-w-[1440px] mx-auto min-h-[calc(100vh-72px)]">
-      <SEO title="AI 모의 면접 | 풀스택 개념북" />
+      {isActive && <SEO title="AI 모의 면접 | 풀스택 개념북" />}
 
       {/* Main Content Area */}
       <main className="flex-1 px-lg py-xl overflow-y-auto max-h-[calc(100vh-72px)] transition-colors duration-200 flex flex-col">

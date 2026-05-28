@@ -11,9 +11,10 @@ import { SEO } from "../../../components/SEO";
 
 interface HandbookDashboardProps {
   onSwitchMode: () => void;
+  isActive?: boolean;
 }
 
-export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode }) => {
+export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode, isActive }) => {
   const [selectedSubjectKey, setSelectedSubjectKey] = useState<string>("JAVASCRIPT");
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const initialQuestionRef = useRef<Question | null>(null);
@@ -212,11 +213,13 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-white dark:bg-black transition-colors duration-200">
-      <SEO
-        title={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.title : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 면접 준비` : undefined)}
-        description={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.summary : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 관련 기술 면접 핵심 개념 학습 및 대표 질문 리스트를 확인해보세요.` : undefined)}
-        question={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion : null}
-      />
+      {isActive && (
+        <SEO
+          title={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.title : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 면접 준비` : undefined)}
+          description={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.summary : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 관련 기술 면접 핵심 개념 학습 및 대표 질문 리스트를 확인해보세요.` : undefined)}
+          question={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion : null}
+        />
+      )}
       {/* 1. Dynamic category sub-nav header */}
       <header className="bg-white/80 dark:bg-apple-surface-tile-1/80 backdrop-blur-md text-apple-ink dark:text-apple-body-on-dark h-[46px] px-lg flex items-center justify-between sticky top-[52px] z-40 border-b border-black/5 dark:border-white/5 select-none transition-colors duration-200 gap-md">
         {/* Categories Menu */}

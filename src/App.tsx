@@ -46,13 +46,14 @@ function App() {
         <div className={`flex-1 flex flex-col ${activeMode === "handbook" ? "" : "hidden"}`}>
           <HandbookDashboard 
             onSwitchMode={() => setActiveMode("interview")} 
+            isActive={activeMode === "handbook"}
           />
         </div>
         <div className={`flex-1 flex flex-col ${activeMode === "interview" ? "" : "hidden"}`}>
-          <InterviewDashboard />
+          <InterviewDashboard isActive={activeMode === "interview"} />
         </div>
         <div className={`flex-1 flex flex-col ${activeMode === "subscription" ? "" : "hidden"}`}>
-          <SubscriptionDashboard />
+          <SubscriptionDashboard isActive={activeMode === "subscription"} />
         </div>
       </main>
     </div>

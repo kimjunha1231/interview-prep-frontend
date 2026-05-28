@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { SubNav } from "./components/SubNav";
 import { HandbookDashboard } from "./features/handbook/components/HandbookDashboard";
 import { InterviewDashboard } from "./features/interview/components/InterviewDashboard";
+import { SubscriptionDashboard } from "./features/handbook/components/SubscriptionDashboard";
 
 function App() {
-  const [activeMode, setActiveMode] = useState<"handbook" | "interview">("handbook");
+  const [activeMode, setActiveMode] = useState<"handbook" | "interview" | "subscription">("handbook");
   
   // Theme state: default to 'dark' to respect the original design, but support toggling
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -49,6 +50,9 @@ function App() {
         </div>
         <div className={`flex-1 flex flex-col ${activeMode === "interview" ? "" : "hidden"}`}>
           <InterviewDashboard />
+        </div>
+        <div className={`flex-1 flex flex-col ${activeMode === "subscription" ? "" : "hidden"}`}>
+          <SubscriptionDashboard />
         </div>
       </main>
     </div>

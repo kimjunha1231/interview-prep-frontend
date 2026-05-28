@@ -204,70 +204,73 @@ export const InterviewDashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center max-w-[960px] w-full mx-auto px-lg py-xl">
+    <div className="flex-1 flex w-full max-w-[1440px] mx-auto min-h-[calc(100vh-72px)]">
       <SEO title="AI 모의 면접 | 풀스택 개념북" />
 
-      <div className="w-full bg-white dark:bg-apple-surface-tile-1/20 border border-black/5 dark:border-white/5 rounded-lg p-lg md:p-xl relative overflow-hidden transition-colors duration-200">
-        
-        {/* --- 1. Setup Form --- */}
-        {interviewStep === "setup" && (
-          <InterviewSetup
-            interviewCategory={interviewCategory}
-            onChangeCategory={setInterviewCategory}
-            questionCount={questionCount}
-            onChangeCount={setQuestionCount}
-            selectedSubjects={selectedSubjects}
-            onChangeSubjects={setSelectedSubjects}
-            portfolioFile={portfolioFile}
-            onPortfolioFileChange={(file, text) => {
-              setPortfolioFile(file);
-              setPortfolioText(text);
-            }}
-            isStarting={isStarting}
-            onSubmit={handleStartInterview}
-          />
-        )}
+      {/* Main Content Area */}
+      <main className="flex-1 px-lg py-xl overflow-y-auto max-h-[calc(100vh-72px)] transition-colors duration-200 flex flex-col">
+        <div className="w-full max-w-[960px] mx-auto my-auto bg-white dark:bg-apple-surface-tile-1/20 border border-black/5 dark:border-white/5 rounded-lg p-lg md:p-xl relative overflow-hidden transition-colors duration-200">
+          
+          {/* --- 1. Setup Form --- */}
+          {interviewStep === "setup" && (
+            <InterviewSetup
+              interviewCategory={interviewCategory}
+              onChangeCategory={setInterviewCategory}
+              questionCount={questionCount}
+              onChangeCount={setQuestionCount}
+              selectedSubjects={selectedSubjects}
+              onChangeSubjects={setSelectedSubjects}
+              portfolioFile={portfolioFile}
+              onPortfolioFileChange={(file, text) => {
+                setPortfolioFile(file);
+                setPortfolioText(text);
+              }}
+              isStarting={isStarting}
+              onSubmit={handleStartInterview}
+            />
+          )}
 
-        {/* --- 2. Ongoing Interview --- */}
-        {interviewStep === "ongoing" && sessionData && (
-          <InterviewOngoing
-            sessionData={sessionData}
-            currentQuestionIndex={currentQuestionIndex}
-            isHandlingTailQuestion={isHandlingTailQuestion}
-            currentTailQuestionText={currentTailQuestionText}
-            isRecording={isRecording}
-            audioUrl={audioUrl}
-            startRecording={handleMicStart}
-            stopRecording={handleMicStop}
-            isTranscribing={isTranscribing}
-            isGrading={isGrading}
-            userAnswerText={userAnswerText}
-            onChangeAnswerText={setUserAnswerText}
-            onSubmit={handleSubmitAnswer}
-            transcribeError={transcribeError}
-          />
-        )}
+          {/* --- 2. Ongoing Interview --- */}
+          {interviewStep === "ongoing" && sessionData && (
+            <InterviewOngoing
+              sessionData={sessionData}
+              currentQuestionIndex={currentQuestionIndex}
+              isHandlingTailQuestion={isHandlingTailQuestion}
+              currentTailQuestionText={currentTailQuestionText}
+              isRecording={isRecording}
+              audioUrl={audioUrl}
+              startRecording={handleMicStart}
+              stopRecording={handleMicStop}
+              isTranscribing={isTranscribing}
+              isGrading={isGrading}
+              userAnswerText={userAnswerText}
+              onChangeAnswerText={setUserAnswerText}
+              onSubmit={handleSubmitAnswer}
+              transcribeError={transcribeError}
+            />
+          )}
 
-        {/* --- 3. AI Feedback --- */}
-        {interviewStep === "feedback" && gradingResult && sessionData && (
-          <InterviewFeedback
-            gradingResult={gradingResult}
-            sessionData={sessionData}
-            currentQuestionIndex={currentQuestionIndex}
-            onTailQuestion={handleTailQuestionFlow}
-            onNext={handleNextQuestion}
-          />
-        )}
+          {/* --- 3. AI Feedback --- */}
+          {interviewStep === "feedback" && gradingResult && sessionData && (
+            <InterviewFeedback
+              gradingResult={gradingResult}
+              sessionData={sessionData}
+              currentQuestionIndex={currentQuestionIndex}
+              onTailQuestion={handleTailQuestionFlow}
+              onNext={handleNextQuestion}
+            />
+          )}
 
-        {/* --- 4. Final Report --- */}
-        {interviewStep === "report" && (
-          <InterviewReport
-            sessionData={sessionData}
-            sessionHistories={sessionHistories}
-            onReset={handleResetSession}
-          />
-        )}
-      </div>
+          {/* --- 4. Final Report --- */}
+          {interviewStep === "report" && (
+            <InterviewReport
+              sessionData={sessionData}
+              sessionHistories={sessionHistories}
+              onReset={handleResetSession}
+            />
+          )}
+        </div>
+      </main>
     </div>
   );
 };

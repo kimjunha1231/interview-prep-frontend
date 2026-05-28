@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { QuestionList } from "./QuestionList";
 import { QuestionDetail } from "./QuestionDetail";
-import { NewsletterSubscription } from "./NewsletterSubscription";
 import { apiService } from "../../../services/api";
 import { SUBJECT_MAPS } from "../../../constants/subjects";
 import { getSyntheticOverview } from "../../../constants/overviews";
@@ -358,8 +357,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
               </nav>
             )}
 
-            {/* 데일리 면접 챌린지 구독 폼 */}
-            <NewsletterSubscription />
+            {/* 목차만 남기고 데일리 면접 챌린지 구독 폼 제거 */}
           </div>
         </aside>
       </div>

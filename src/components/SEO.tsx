@@ -24,7 +24,7 @@ const stripMarkdown = (text: string): string => {
 export const SEO: React.FC<SEOProps> = ({ title, description, keywords, question }) => {
   const pageTitle = title 
     ? (title.includes("|") ? title : `${title} | Interview Handbook`)
-    : "Interview Handbook - AI 모의 면접 및 개념 학습";
+    : "Interview Handbook - AI 모의 면접 및 풀스택 개념북";
   
   const pageDesc = description || "프론트엔드, 백엔드, CS 기술 면접부터 포트폴리오 맞춤 질문까지! 모의 면접으로 AI 피드백을 받고 매일매일 1개의 랜덤 질문을 받아보세요.";
   

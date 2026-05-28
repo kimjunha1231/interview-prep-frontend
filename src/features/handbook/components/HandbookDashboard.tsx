@@ -15,7 +15,7 @@ interface HandbookDashboardProps {
 }
 
 export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode, isActive }) => {
-  const [selectedSubjectKey, setSelectedSubjectKey] = useState<string>("JAVASCRIPT");
+  const [selectedSubjectKey, setSelectedSubjectKey] = useState<string>("ALL");
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const initialQuestionRef = useRef<Question | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -215,8 +215,22 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
     <div className="flex-1 flex flex-col min-h-screen bg-white dark:bg-black transition-colors duration-200">
       {isActive && (
         <SEO
-          title={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.title : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 면접 준비` : undefined)}
-          description={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion.summary : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 관련 기술 면접 핵심 개념 학습 및 대표 질문 리스트를 확인해보세요.` : undefined)}
+          title={
+            selectedQuestion && selectedQuestion.id !== -1 
+              ? selectedQuestion.title 
+              : (selectedSubjectKey === "ALL" 
+                  ? undefined 
+                  : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 면접 준비` : undefined)
+                )
+          }
+          description={
+            selectedQuestion && selectedQuestion.id !== -1 
+              ? selectedQuestion.summary 
+              : (selectedSubjectKey === "ALL" 
+                  ? undefined 
+                  : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 관련 기술 면접 핵심 개념 학습 및 대표 질문 리스트를 확인해보세요.` : undefined)
+                )
+          }
           question={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion : null}
         />
       )}

@@ -17,6 +17,7 @@ export interface SubjectMap {
  * - 모의면접: 과목 선택 체크박스 그룹
  */
 export const SUBJECT_MAPS: Record<string, SubjectMap> = {
+  ALL:          { label: "전체 질문" },
   JAVASCRIPT:   { label: "JavaScript",  subjects: ["javascript", "typescript"] },
   REACT:        { label: "React",       subjects: ["react", "nextjs"] },
   HTML_CSS:     { label: "HTML/CSS",    subjects: ["html_css", "web_performance"] },
@@ -28,7 +29,6 @@ export const SUBJECT_MAPS: Record<string, SubjectMap> = {
   DEVOPS:       { label: "DevOps",      subjects: ["devops"] },
   ARCHITECTURE: { label: "아키텍처",    subjects: ["software_engineering", "system_design", "design_pattern"] },
   ALGORITHM:    { label: "알고리즘",    subjects: ["algorithm", "data_structure"] },
-  ALL:          { label: "전체 질문" },
 };
 
 /**

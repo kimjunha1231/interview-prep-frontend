@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { BookOpen, ExternalLink, ChevronDown, HelpCircle, Sparkles } from "lucide-react";
-import type { Question } from "../../../types";
+import type { Question, QuestionSummary } from "../../../types";
 import { normalizeMarkdown, mdComponents, caveatsComponents } from "../../../utils/markdown";
+import { Skeleton } from "../../../components/ui/Skeleton";
 
 interface QuestionDetailProps {
-  question: Question | null;
+  question: Question | QuestionSummary | null;
   onSwitchMode?: () => void;
 }
 
@@ -33,7 +34,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
     );
   }
 
-
+  const isDetailLoading = question.id !== -1 && !('explanation' in question && question.explanation);
   const displayCategory = question.category === "OVERVIEW" ? "안내" : question.category;
 
   return (
@@ -108,8 +109,20 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
         </section>
       )}
 
-      {/* Explanation — full markdown rendering */}
-      {question.explanation && (
+      {/* Explanation — full markdown rendering or skeleton */}
+      {isDetailLoading ? (
+        <section id="section-explanation" className="flex flex-col gap-sm">
+          <h3 className="font-mono text-[11px] uppercase tracking-wider text-gray-500 dark:text-apple-body-muted border-b border-black/5 dark:border-white/5 pb-xxs mb-sm">
+            상세 가이드라인 (Detailed Guide)
+          </h3>
+          <div className="flex flex-col gap-sm">
+            <Skeleton className="h-[20px] w-[95%] bg-black/5 dark:bg-white/5" />
+            <Skeleton className="h-[20px] w-[90%] bg-black/5 dark:bg-white/5" />
+            <Skeleton className="h-[20px] w-[92%] bg-black/5 dark:bg-white/5" />
+            <Skeleton className="h-[20px] w-[65%] bg-black/5 dark:bg-white/5" />
+          </div>
+        </section>
+      ) : 'explanation' in question && question.explanation ? (
         <section id="section-explanation" className="flex flex-col">
           <h3 className="font-mono text-[11px] uppercase tracking-wider text-gray-500 dark:text-apple-body-muted border-b border-black/5 dark:border-white/5 pb-xxs mb-sm">
             상세 가이드라인 (Detailed Guide)
@@ -118,10 +131,20 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
             {normalizeMarkdown(question.explanation)}
           </ReactMarkdown>
         </section>
-      )}
+      ) : null}
 
-      {/* Caveats — red-accented bullet style */}
-      {question.caveats && (
+      {/* Caveats — red-accented bullet style or skeleton */}
+      {isDetailLoading ? (
+        <section id="section-caveats" className="flex flex-col gap-sm">
+          <h3 className="font-mono text-[11px] uppercase tracking-wider text-red-500 dark:text-red-400 border-b border-black/5 dark:border-white/5 pb-xxs mb-sm">
+            주요 주의사항 (Caveats)
+          </h3>
+          <div className="flex flex-col gap-sm p-md bg-red-500/5 dark:bg-red-950/10 border border-red-500/10 rounded-md">
+            <Skeleton className="h-[18px] w-[95%] bg-black/5 dark:bg-white/5" />
+            <Skeleton className="h-[18px] w-[80%] bg-black/5 dark:bg-white/5" />
+          </div>
+        </section>
+      ) : 'caveats' in question && question.caveats ? (
         <section
           id="section-caveats"
           className="bg-red-500/5 dark:bg-red-950/10 border border-red-500/10 p-md rounded-md"
@@ -133,10 +156,20 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
             {normalizeMarkdown(question.caveats)}
           </ReactMarkdown>
         </section>
-      )}
+      ) : null}
 
-      {/* Tail questions */}
-      {question.tailQuestions && question.tailQuestions.length > 0 && (
+      {/* Tail questions or skeleton */}
+      {isDetailLoading ? (
+        <section id="section-tails" className="flex flex-col gap-sm">
+          <h3 className="font-mono text-[11px] uppercase tracking-wider text-gray-500 dark:text-apple-body-muted border-b border-black/5 dark:border-white/5 pb-xxs mb-sm">
+            예상 꼬리 질문 (Anticipated Follow-up Questions)
+          </h3>
+          <div className="flex flex-col gap-sm">
+            <Skeleton className="h-[48px] w-full bg-black/5 dark:bg-white/5 rounded-lg" />
+            <Skeleton className="h-[48px] w-full bg-black/5 dark:bg-white/5 rounded-lg" />
+          </div>
+        </section>
+      ) : 'tailQuestions' in question && question.tailQuestions && question.tailQuestions.length > 0 ? (
         <section id="section-tails" className="flex flex-col gap-md">
           <h3 className="font-mono text-[11px] uppercase tracking-wider text-gray-500 dark:text-apple-body-muted border-b border-black/5 dark:border-white/5 pb-xxs mb-xs">
             예상 꼬리 질문 (Anticipated Follow-up Questions)
@@ -205,10 +238,10 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
             })}
           </div>
         </section>
-      )}
+      ) : null}
 
       {/* References */}
-      {question.references && question.references.length > 0 && (
+      {!isDetailLoading && 'references' in question && question.references && question.references.length > 0 ? (
         <section id="section-references" className="border-t border-black/5 dark:border-white/5 pt-md mt-sm select-none">
           <h3 className="font-mono text-[11px] uppercase tracking-wider text-gray-500 dark:text-apple-body-muted mb-xs">
             공식 레퍼런스 (Authority References)
@@ -229,7 +262,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
             ))}
           </div>
         </section>
-      )}
+      ) : null}
     </article>
   );
 };

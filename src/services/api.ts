@@ -2,7 +2,8 @@ import type {
   Question, 
   ApiResponse, 
   InterviewSessionResponse, 
-  InterviewHistoryResponse 
+  InterviewHistoryResponse,
+  QuestionSummary
 } from "../types";
 
 /**
@@ -54,9 +55,23 @@ export const apiService = {
   },
 
   /**
-   * Fetch all questions (stably sorted) for the Concept Handbook
+   * Fetch lightweight question summaries (stably sorted) for the Concept Handbook list
    */
-  async getQuestions(category?: string, subject?: string): Promise<Question[]> {
+  async getQuestions(category?: string, subject?: string): Promise<QuestionSummary[]> {
+    let url = "/api/questions/list";
+    const params = new URLSearchParams();
+    if (category) params.append("category", category);
+    if (subject) params.append("subject", subject);
+    const queryString = params.toString();
+    if (queryString) url += "?" + queryString;
+
+    return fetchJson<QuestionSummary[]>(url);
+  },
+
+  /**
+   * Fetch all full questions (stably sorted) for background caching & global search
+   */
+  async getFullQuestions(category?: string, subject?: string): Promise<Question[]> {
     let url = "/api/questions";
     const params = new URLSearchParams();
     if (category) params.append("category", category);

@@ -22,6 +22,16 @@ export interface Question {
   references?: ReferenceItem[];
 }
 
+export interface QuestionSummary {
+  id: number;
+  category: string;
+  subject: string;
+  title: string;
+  importance?: number;
+  summary?: string;
+}
+
+
 export interface ApiError {
   code: string;
   message: string;

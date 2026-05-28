@@ -1,15 +1,15 @@
 import React, { useRef, useEffect } from "react";
 import { BookOpen } from "lucide-react";
 import { Skeleton } from "../../../components/ui/Skeleton";
-import type { Question } from "../../../types";
+import type { Question, QuestionSummary } from "../../../types";
 import { SUBJECT_MAPS } from "../../../constants/subjects";
 
 interface QuestionListProps {
   selectedCategory: string;
   onChangeCategory: (category: string) => void;
-  questions: Question[];
+  questions: (Question | QuestionSummary)[];
   selectedQuestionId?: number;
-  onSelectQuestion: (question: Question) => void;
+  onSelectQuestion: (question: Question | QuestionSummary) => void;
   loading: boolean;
 }
 

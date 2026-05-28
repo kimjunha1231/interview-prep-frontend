@@ -6,7 +6,7 @@ import { QuestionDetail } from "./QuestionDetail";
 import { apiService } from "../../../services/api";
 import { SUBJECT_MAPS } from "../../../constants/subjects";
 import { getSyntheticOverview } from "../../../constants/overviews";
-import type { Question } from "../../../types";
+import type { Question, QuestionSummary } from "../../../types";
 import { SEO } from "../../../components/SEO";
 
 interface HandbookDashboardProps {
@@ -16,7 +16,7 @@ interface HandbookDashboardProps {
 
 export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode, isActive }) => {
   const [selectedSubjectKey, setSelectedSubjectKey] = useState<string>("ALL");
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | QuestionSummary | null>(null);
   const initialQuestionRef = useRef<Question | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [mobileView, setMobileView] = useState<"list" | "detail">("list");
@@ -72,12 +72,12 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
     }
   }, []);
 
-  // TanStack Query to load and cache questions based on subject key
-  const { data: questionsData = [], isLoading: loadingQuestions } = useQuery<Question[]>({
+  // TanStack Query to load and cache questions based on subject key (lightweight summaries)
+  const { data: questionsData = [], isLoading: loadingQuestions } = useQuery<QuestionSummary[]>({
     queryKey: ["questions", selectedSubjectKey],
     queryFn: async () => {
       const mapping = SUBJECT_MAPS[selectedSubjectKey];
-      const fetchPromises: Promise<Question[]>[] = [];
+      const fetchPromises: Promise<QuestionSummary[]>[] = [];
       
       if (mapping.category && !mapping.subjects) {
         fetchPromises.push(apiService.getQuestions(mapping.category, undefined));
@@ -91,7 +91,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
 
       const results = await Promise.all(fetchPromises);
       
-      const merged: Question[] = [];
+      const merged: QuestionSummary[] = [];
       const seenIds = new Set<number>();
       
       results.forEach(list => {
@@ -125,17 +125,30 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
     gcTime: Infinity,
   });
 
-  // Load ALL questions for background cache and global search
+  // Load ALL questions (with full details) in the background for cache and global search
   const { data: allQuestions = [] } = useQuery<Question[]>({
-    queryKey: ["questions", "ALL"],
+    queryKey: ["questions", "ALL_FULL"],
     queryFn: async () => {
-      const results = await apiService.getQuestions(undefined, undefined);
+      const results = await apiService.getFullQuestions(undefined, undefined);
       const overviewQ = getSyntheticOverview("ALL");
       return [overviewQ, ...results];
     },
     staleTime: Infinity,
     gcTime: Infinity,
   });
+
+  // Load detail for selected question if we only have the summary
+  const { data: fullQuestion } = useQuery<Question | null>({
+    queryKey: ["questionDetail", selectedQuestion?.id],
+    queryFn: () => selectedQuestion && selectedQuestion.id !== -1 ? apiService.getQuestion(selectedQuestion.id) : Promise.resolve(null),
+    enabled: !!selectedQuestion && selectedQuestion.id !== -1 && !('explanation' in selectedQuestion && !!(selectedQuestion as any).explanation),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
+  const activeQuestion = (selectedQuestion && selectedQuestion.id !== -1 && 'explanation' in selectedQuestion && !!(selectedQuestion as any).explanation)
+    ? selectedQuestion as Question
+    : (fullQuestion || selectedQuestion);
 
   // Keep selectedQuestion in sync with category switch or custom query param load
   useEffect(() => {
@@ -171,7 +184,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
   }, [selectedQuestion]);
 
   // Client-side filtering logic
-  const filteredQuestions = (searchQuery.trim() ? allQuestions : questionsData).filter(q => {
+  const filteredQuestions = (searchQuery.trim() ? allQuestions : questionsData).filter((q: any) => {
     if (!searchQuery.trim()) {
       if (q.id === -1) return true; // Keep synthetic overview always
       return true;
@@ -191,18 +204,18 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
   });
 
   // TOC parsing
-  const getTocItems = (q: Question | null) => {
+  const getTocItems = (q: Question | QuestionSummary | null) => {
     if (!q) return [];
     const items = [];
     if (q.summary) items.push({ id: "section-summary", label: "요약" });
-    if (q.explanation) items.push({ id: "section-explanation", label: "상세 설명" });
-    if (q.caveats) items.push({ id: "section-caveats", label: "주의 사항" });
-    if (q.tailQuestions && q.tailQuestions.length > 0) items.push({ id: "section-tails", label: "추천 꼬리 질문" });
-    if (q.references && q.references.length > 0) items.push({ id: "section-references", label: "참고자료" });
+    if ('explanation' in q && q.explanation) items.push({ id: "section-explanation", label: "상세 설명" });
+    if ('caveats' in q && q.caveats) items.push({ id: "section-caveats", label: "주의 사항" });
+    if ('tailQuestions' in q && q.tailQuestions && q.tailQuestions.length > 0) items.push({ id: "section-tails", label: "추천 꼬리 질문" });
+    if ('references' in q && q.references && q.references.length > 0) items.push({ id: "section-references", label: "참고자료" });
     return items;
   };
 
-  const tocItems = getTocItems(selectedQuestion);
+  const tocItems = getTocItems(activeQuestion);
 
   const handleScrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -216,22 +229,22 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
       {isActive && (
         <SEO
           title={
-            selectedQuestion && selectedQuestion.id !== -1 
-              ? selectedQuestion.title 
+            activeQuestion && activeQuestion.id !== -1 
+              ? activeQuestion.title 
               : (selectedSubjectKey === "ALL" 
                   ? undefined 
                   : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 면접 준비` : undefined)
                 )
           }
           description={
-            selectedQuestion && selectedQuestion.id !== -1 
-              ? selectedQuestion.summary 
+            activeQuestion && activeQuestion.id !== -1 
+              ? activeQuestion.summary 
               : (selectedSubjectKey === "ALL" 
                   ? undefined 
                   : (SUBJECT_MAPS[selectedSubjectKey] ? `${SUBJECT_MAPS[selectedSubjectKey].label} 관련 기술 면접 핵심 개념 학습 및 대표 질문 리스트를 확인해보세요.` : undefined)
                 )
           }
-          question={selectedQuestion && selectedQuestion.id !== -1 ? selectedQuestion : null}
+          question={activeQuestion && activeQuestion.id !== -1 ? activeQuestion as Question : null}
         />
       )}
       {/* 1. Dynamic category sub-nav header */}
@@ -346,7 +359,7 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
             </div>
           )}
           <QuestionDetail 
-            question={selectedQuestion} 
+            question={activeQuestion} 
             onSwitchMode={onSwitchMode}
           />
         </main>

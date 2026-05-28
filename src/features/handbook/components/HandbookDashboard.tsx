@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { QuestionList } from "./QuestionList";
 import { QuestionDetail } from "./QuestionDetail";
@@ -15,6 +15,7 @@ interface HandbookDashboardProps {
 }
 
 export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMode, isActive }) => {
+  const queryClient = useQueryClient();
   const [selectedSubjectKey, setSelectedSubjectKey] = useState<string>("ALL");
   const [selectedQuestion, setSelectedQuestion] = useState<Question | QuestionSummary | null>(null);
   const initialQuestionRef = useRef<Question | null>(null);
@@ -131,24 +132,32 @@ export const HandbookDashboard: React.FC<HandbookDashboardProps> = ({ onSwitchMo
     queryFn: async () => {
       const results = await apiService.getFullQuestions(undefined, undefined);
       const overviewQ = getSyntheticOverview("ALL");
+      
+      // Seed individual question detail caches for instant 0ms clicking
+      results.forEach(q => {
+        queryClient.setQueryData(["questionDetail", q.id], q);
+      });
+
       return [overviewQ, ...results];
     },
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
-  // Load detail for selected question if we only have the summary
+  const preloadedQuestion = allQuestions.find(q => q.id === selectedQuestion?.id);
+
+  // Load detail for selected question if we only have the summary and it's not preloaded
   const { data: fullQuestion } = useQuery<Question | null>({
     queryKey: ["questionDetail", selectedQuestion?.id],
     queryFn: () => selectedQuestion && selectedQuestion.id !== -1 ? apiService.getQuestion(selectedQuestion.id) : Promise.resolve(null),
-    enabled: !!selectedQuestion && selectedQuestion.id !== -1 && !('explanation' in selectedQuestion && !!(selectedQuestion as any).explanation),
+    enabled: !!selectedQuestion && selectedQuestion.id !== -1 && !preloadedQuestion && !('explanation' in selectedQuestion && !!(selectedQuestion as any).explanation),
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
   const activeQuestion = (selectedQuestion && selectedQuestion.id !== -1 && 'explanation' in selectedQuestion && !!(selectedQuestion as any).explanation)
     ? selectedQuestion as Question
-    : (fullQuestion || selectedQuestion);
+    : (preloadedQuestion || fullQuestion || selectedQuestion);
 
   // Keep selectedQuestion in sync with category switch or custom query param load
   useEffect(() => {

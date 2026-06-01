@@ -88,7 +88,7 @@ export const InterviewSetup: React.FC<InterviewSetupProps> = ({
   const handleCategoryClick = (cat: string) => {
     onChangeCategory(cat);
     if (cat === "CS") {
-      onChangeSubjects(["NETWORK", "OS", "DATABASE", "ARCHITECTURE", "ALGORITHM"]);
+      onChangeSubjects(["NETWORK", "WEB", "OS", "DATABASE", "ARCHITECTURE", "ALGORITHM"]);
     } else if (cat === "FE") {
       onChangeSubjects(["JAVASCRIPT", "REACT", "HTML_CSS"]);
     } else if (cat === "BE") {

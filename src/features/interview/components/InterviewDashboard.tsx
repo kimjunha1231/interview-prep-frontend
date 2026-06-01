@@ -14,7 +14,7 @@ export const InterviewDashboard: React.FC<{ isActive?: boolean }> = ({ isActive 
   const [isStarting, setIsStarting] = useState<boolean>(false);
   const [interviewCategory, setInterviewCategory] = useState<string>("CS");
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([
-    "NETWORK", "OS", "DATABASE", "ARCHITECTURE", "ALGORITHM"
+    "NETWORK", "WEB", "OS", "DATABASE", "ARCHITECTURE", "ALGORITHM"
   ]);
   const [questionCount, setQuestionCount] = useState<number>(3);
   const [sessionData, setSessionData] = useState<InterviewSessionResponse | null>(null);
@@ -198,7 +198,7 @@ export const InterviewDashboard: React.FC<{ isActive?: boolean }> = ({ isActive 
     setPortfolioFile(null);
     setPortfolioText("");
     setSelectedSubjects([
-      "NETWORK", "OS", "DATABASE", "ARCHITECTURE", "ALGORITHM"
+      "NETWORK", "WEB", "OS", "DATABASE", "ARCHITECTURE", "ALGORITHM"
     ]);
     setInterviewCategory("CS");
   };

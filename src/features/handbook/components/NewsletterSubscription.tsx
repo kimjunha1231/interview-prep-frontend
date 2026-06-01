@@ -12,7 +12,8 @@ const getSubjectEmoji = (key: string): string => {
     case "JAVASCRIPT": return "🟡";
     case "REACT": return "⚛️";
     case "HTML_CSS": return "🎨";
-    case "NETWORK": return "🌐";
+    case "NETWORK": return "📡";
+    case "WEB": return "🌐";
     case "OS": return "💻";
     case "DATABASE": return "🗄️";
     case "JAVA": return "☕";

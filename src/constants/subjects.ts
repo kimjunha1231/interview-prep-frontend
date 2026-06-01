@@ -22,6 +22,7 @@ export const SUBJECT_MAPS: Record<string, SubjectMap> = {
   REACT:        { label: "React",       subjects: ["react", "nextjs"] },
   HTML_CSS:     { label: "HTML/CSS",    subjects: ["html_css", "web_performance"] },
   NETWORK:      { label: "네트워크",    subjects: ["network"] },
+  WEB:          { label: "웹·HTTP",     subjects: ["web"] },
   OS:           { label: "OS·시스템",   subjects: ["os", "computer_architecture"] },
   DATABASE:     { label: "데이터베이스", subjects: ["database"] },
   JAVA:         { label: "Java",        subjects: ["java"] },

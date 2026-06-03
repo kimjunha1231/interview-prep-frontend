@@ -208,8 +208,8 @@ export const InterviewDashboard: React.FC<{ isActive?: boolean }> = ({ isActive 
       {isActive && <SEO title="AI 모의 면접 | 풀스택 개념북" />}
 
       {/* Main Content Area */}
-      <main className="flex-1 px-lg py-xl overflow-y-auto max-h-[calc(100vh-72px)] transition-colors duration-200 flex flex-col">
-        <div className="w-full max-w-[960px] mx-auto my-auto bg-white dark:bg-apple-surface-tile-1/20 border border-black/5 dark:border-white/5 rounded-lg p-lg md:p-xl relative overflow-hidden transition-colors duration-200">
+      <main className="flex-1 px-lg py-xl overflow-y-auto h-[calc(100vh-72px)] transition-colors duration-200 flex flex-col">
+        <div className="w-full max-w-[960px] mx-auto bg-white dark:bg-apple-surface-tile-1/20 border border-black/5 dark:border-white/5 rounded-lg p-lg md:p-xl relative overflow-hidden transition-colors duration-200 flex-shrink-0">
           
           {/* --- 1. Setup Form --- */}
           {interviewStep === "setup" && (
